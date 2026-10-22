@@ -32,9 +32,13 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+# Keep the environment variable template committed so developers know which
+# variables the application expects.
+!.env.local.example
 
 # vercel
 .vercel
+.claude
 
 # typescript
 *.tsbuildinfo
