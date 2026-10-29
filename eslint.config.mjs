@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Reference integration kit, not part of the app.
+    "docs/**",
   ]),
 ]);
 

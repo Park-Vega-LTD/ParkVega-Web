@@ -97,6 +97,8 @@ export interface Booking {
   unit_price: number
   total: number
   status: 'reserved' | 'pending_payment' | 'paid' | 'checked_in' | 'cancelled'
+  /** Internal lifecycle state behind `status`, e.g. CONFIRMED or REFUND_PENDING. */
+  state?: string
   email: string | null
   full_name: string
   phone: string | null
@@ -112,6 +114,9 @@ export interface Ticket {
   status: 'ISSUED' | 'CHECKED_IN' | 'CANCELLED'
 }
 
+/** Printed menu labels besides "Popular", which is `popular`. */
+export type MenuItemBadge = 'KIDS_SPECIAL' | 'BIG_APPETITE' | 'FAMILY_FAVOURITE'
+
 export interface MenuItem {
   id: string
   name: string
@@ -119,6 +124,12 @@ export interface MenuItem {
   price: number
   category: string
   popular: boolean
+  badges: MenuItemBadge[]
+  /** What a combo comes with, in order; empty for single items. */
+  includes: string[]
+  /** Dish photo, usually on res.cloudinary.com. */
+  image_url: string | null
+  allergens: string[]
   active: boolean
 }
 
@@ -162,9 +173,38 @@ export interface SiteSettings {
   notice: string | null
 }
 
+/** A visitor's itinerary for one visit date (`POST /plans`). */
+export interface VisitorPlan {
+  id: string
+  visit_date: string
+}
+
+/** One stop on a plan (`GET /plans?visitDate=`), ordered by start time. */
+export interface ItineraryItem {
+  id: string
+  plan_id: string
+  type: 'ATTRACTION' | 'RESTAURANT' | 'EVENT'
+  reference_id: string
+  /** HH:MM:SS time of day. */
+  start_time: string
+  note: string | null
+}
+
 export interface FAQ {
   id: string
   question: string
   answer: string
   sort_order: number
+}
+
+/** GET /content/page-images?page_key=…: a photo in a named spot on a page, e.g. home/hero. */
+export interface PageImage {
+  id: string
+  page_key: string
+  slot: string
+  position: number
+  media_file_id: string
+  url: string
+  alt_text: string
+  content_type: string
 }

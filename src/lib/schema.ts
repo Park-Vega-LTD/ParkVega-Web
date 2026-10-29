@@ -36,7 +36,7 @@ export function waterParkSchema(fromPrice: number) {
     name: "Park Vega Waterpark",
     slogan: "Delivering Your Kind Of Fun",
     url: SITE_URL,
-    image: `${SITE_URL}/parkvega-hero.jpg`,
+    image: `${SITE_URL}/photos/slide-tower-tubes.jpg`,
     telephone: PHONE_E164,
     email: EMAIL,
     priceRange: `From ${formatNaira(fromPrice)}`,
@@ -81,7 +81,7 @@ export function eventSchemas(events: Event[], fromPrice: number, today: string) 
           "@type": "Event",
           name: event.title,
           description: event.description ?? undefined,
-          image: event.image_url ?? `${SITE_URL}/parkvega-hero.jpg`,
+          image: event.image_url ?? `${SITE_URL}/photos/slide-tower-tubes.jpg`,
           startDate: session.start_time
             ? `${session.session_date}T${session.start_time}${WAT_OFFSET}`
             : session.session_date,

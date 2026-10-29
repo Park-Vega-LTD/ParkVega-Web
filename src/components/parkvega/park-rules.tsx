@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import {
   Armchair,
   Ban,
@@ -45,7 +46,7 @@ export function ParkRulesList({ className }: { className?: string }) {
   return (
     <ol className={cn("grid gap-3 sm:grid-cols-2", className)}>
       {PARK_RULES.map((rule, index) => (
-        <li key={rule} className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-sm">
+        <li key={rule} data-reveal style={{ "--i": index % 2 } as CSSProperties} className="flex items-start gap-3 rounded-2xl border border-border bg-card p-4 text-sm">
           <span className="grid size-7 shrink-0 place-items-center rounded-full bg-ocean-soft text-xs font-bold text-primary-ink">
             {index + 1}
           </span>
@@ -71,7 +72,7 @@ export function ProhibitedItemsGrid({ className }: { className?: string }) {
         {PROHIBITED_ITEMS.map(({ label, icon }) => {
           const Icon = ITEM_ICONS[icon];
           return (
-            <li key={label} className="flex flex-col items-center gap-2 rounded-2xl border border-border bg-card px-2 py-4 text-center">
+            <li key={label} data-reveal className="card-lift flex flex-col items-center gap-2 rounded-2xl border border-border bg-card px-2 py-4 text-center">
               <span className="relative grid size-12 place-items-center rounded-full bg-muted text-foreground">
                 <Icon className="size-6" aria-hidden="true" />
                 <Ban className="absolute -right-1 -top-1 size-5 rounded-full bg-card text-destructive" aria-hidden="true" />

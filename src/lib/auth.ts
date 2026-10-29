@@ -1,7 +1,16 @@
 import { NextResponse } from 'next/server'
 
+import {
+  ACCESS_COOKIE,
+  REFRESH_COOKIE,
+  REFRESH_MAX_AGE,
+  accessMaxAge,
+  baseCookieOptions,
+  clearLegacyRefreshCookie,
+} from '@/lib/session-cookies'
+
 /**
- * Sets pv_access and pv_refresh httpOnly cookies on a NextResponse.
+ * Sets the pv_access and pv_refresh httpOnly cookies on a NextResponse.
  *
  * @param res - The NextResponse to set cookies on
  * @param accessToken - JWT access token
@@ -14,39 +23,17 @@ export function setAuthCookies(
   refreshToken: string,
   expiresIn: number
 ): void {
-  res.cookies.set('pv_access', accessToken, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true,
-    path: '/',
-    maxAge: expiresIn,
-  })
-  // pv_refresh scoped to /api/auth/ so browser only sends it on BFF auth requests
-  res.cookies.set('pv_refresh', refreshToken, {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true,
-    path: '/api/auth/',
-    maxAge: 60 * 60 * 24 * 30, // 30 days
-  })
+  res.cookies.set(ACCESS_COOKIE, accessToken, { ...baseCookieOptions, maxAge: accessMaxAge(expiresIn) })
+  // Site-wide so the proxy can refresh before any page or Route Handler runs.
+  res.cookies.set(REFRESH_COOKIE, refreshToken, { ...baseCookieOptions, maxAge: REFRESH_MAX_AGE })
+  clearLegacyRefreshCookie(res.headers)
 }
 
 /**
  * Clears both auth cookies from a NextResponse by setting maxAge=0.
  */
 export function clearAuthCookies(res: NextResponse): void {
-  res.cookies.set('pv_access', '', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true,
-    path: '/',
-    maxAge: 0,
-  })
-  res.cookies.set('pv_refresh', '', {
-    httpOnly: true,
-    sameSite: 'lax',
-    secure: true,
-    path: '/api/auth/',
-    maxAge: 0,
-  })
+  res.cookies.set(ACCESS_COOKIE, '', { ...baseCookieOptions, maxAge: 0 })
+  res.cookies.set(REFRESH_COOKIE, '', { ...baseCookieOptions, maxAge: 0 })
+  clearLegacyRefreshCookie(res.headers)
 }

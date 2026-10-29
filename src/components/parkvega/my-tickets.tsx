@@ -2,9 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import QRCode from "qrcode";
 import { useEffect, useState } from "react";
 import { Ticket as TicketIcon } from "lucide-react";
+import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +16,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { clientFetch } from "@/lib/api.client";
 import { formatNaira } from "@/lib/utils";
 import type { Booking } from "@/types/api";
 
@@ -79,10 +82,13 @@ export function MyTickets({ bookings }: { bookings?: Booking[] }) {
     return (
       <div className="space-y-4">
         {bookings.map((booking) => {
-          const status = STATUS_META[booking.status] ?? {
-            label: booking.status,
-            variant: "secondary" as const,
-          };
+          const status =
+            booking.state === "REFUND_PENDING"
+              ? { label: "Refund requested", variant: "secondary" as const }
+              : (STATUS_META[booking.status] ?? {
+                  label: booking.status,
+                  variant: "secondary" as const,
+                });
           return (
             <Card key={booking.id}>
               <CardHeader className="flex flex-row items-start justify-between gap-4 space-y-0">
@@ -109,9 +115,12 @@ export function MyTickets({ bookings }: { bookings?: Booking[] }) {
                     <dd className="font-semibold">{formatNaira(booking.total)}</dd>
                   </div>
                 </dl>
-                <Button asChild variant="outline" size="sm">
-                  <Link href={`/booking/${booking.code}`}>View ticket</Link>
-                </Button>
+                <div className="flex flex-wrap gap-2">
+                  {canRequestRefund(booking) ? <RefundButton booking={booking} /> : null}
+                  <Button asChild variant="outline" size="sm">
+                    <Link href={`/booking/${booking.code}`}>View ticket</Link>
+                  </Button>
+                </div>
               </CardContent>
             </Card>
           );
@@ -121,6 +130,47 @@ export function MyTickets({ bookings }: { bookings?: Booking[] }) {
   }
 
   return <RecentDeviceTickets />;
+}
+
+/**
+ * The API refunds confirmed bookings whose visit is more than 24 hours away
+ * (midnight UTC of the visit date). It checks again, so this only hides a
+ * button that would fail.
+ */
+function canRequestRefund(booking: Booking) {
+  const visit = new Date(`${booking.visit_date}T00:00:00Z`).getTime();
+  return booking.state === "CONFIRMED" && visit - Date.now() > 24 * 60 * 60 * 1000;
+}
+
+function RefundButton({ booking }: { booking: Booking }) {
+  const router = useRouter();
+  const [pending, setPending] = useState(false);
+
+  async function requestRefund() {
+    if (
+      !window.confirm(
+        `Request a refund of ${formatNaira(booking.total)} for booking ${booking.code}? Your tickets stop working once it is approved.`,
+      )
+    ) {
+      return;
+    }
+    setPending(true);
+    try {
+      await clientFetch(`/api/bookings/${booking.id}/refund`, { method: "POST" });
+      toast.success("Refund requested. We'll let you know once it's approved.");
+      router.refresh();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Something went wrong. Please try again.");
+    } finally {
+      setPending(false);
+    }
+  }
+
+  return (
+    <Button variant="ghost" size="sm" onClick={requestRefund} disabled={pending}>
+      {pending ? "Requesting…" : "Request a refund"}
+    </Button>
+  );
 }
 
 /** Device-local recent tickets view (QR codes from `localStorage`). */

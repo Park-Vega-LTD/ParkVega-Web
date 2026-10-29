@@ -18,9 +18,10 @@ export function PackageCards({
     <div className="grid gap-5 md:grid-cols-3">
       {packages.map((pkg) => (
         <article
+          data-reveal
           key={pkg.name}
           className={cn(
-            "flex flex-col rounded-3xl border bg-card p-6 sm:p-7",
+            "card-lift flex flex-col rounded-3xl border bg-card p-6 sm:p-7",
             pkg.highlight ? "border-primary shadow-xl ring-1 ring-primary" : "border-border",
           )}
         >

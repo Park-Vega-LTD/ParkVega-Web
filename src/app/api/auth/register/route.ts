@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiHeaders } from '@/lib/forwarded'
+import { API_URL } from '@/lib/api-url'
 import type { User } from '@/types/api'
 
 interface RegisterResponseData {
@@ -37,9 +39,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { first_name, last_name, email, phone_number, password } = body
 
   try {
-    const apiRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/register`, {
+    const apiRes = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...apiHeaders(request.headers) },
       body: JSON.stringify({ first_name, last_name, email, phone_number, password }),
     })
 

@@ -29,7 +29,7 @@ import {
 import { getFromPrice, getSiteSettings } from "@/lib/public-data";
 import { eventSchemas, waterParkSchema } from "@/lib/schema";
 import { formatNaira, shortDays } from "@/lib/site";
-import type { Attraction, Event, MenuItem, Restaurant } from "@/types/api";
+import type { Attraction, Event, MenuItem, PageImage, Restaurant } from "@/types/api";
 
 // ISR: regenerate the homepage at most once every 60 seconds (Requirement 4.1).
 export const revalidate = 60;
@@ -45,7 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: "/" },
-    openGraph: { title, description, type: "website", images: [settings.hero_image_url ?? "/parkvega-hero.jpg"] },
+    openGraph: { title, description, type: "website", images: [settings.hero_image_url ?? "/photos/slide-tower-tubes.jpg"] },
     twitter: { card: "summary_large_image", title, description },
   };
 }
@@ -97,13 +97,18 @@ export default async function HomePage() {
 
   // Fetch homepage data in parallel. Any single failure degrades to the
   // static fallback so the page still renders every section.
-  const [attractions, events, fromPrice, menuHighlights, settings] = await Promise.all([
+  const [attractions, events, fromPrice, menuHighlights, settings, homeImages] = await Promise.all([
     publicFetch<Attraction[]>("/attractions", fetchOpts).catch(() => [] as Attraction[]),
     publicFetch<Event[]>("/events", fetchOpts).catch(() => [] as Event[]),
     getFromPrice(),
     getMenuHighlights(),
     getSiteSettings(),
+    publicFetch<PageImage[]>("/content/page-images?page_key=home", fetchOpts).catch(() => [] as PageImage[]),
   ]);
+  // Staff pick these under Page images in the console; none keeps the built-in photos.
+  const heroImages = homeImages
+    .filter((image) => image.slot === "hero")
+    .sort((a, b) => a.position - b.position);
 
   const activeAttractions = attractions
     .filter((attraction) => attraction.status === "ACTIVE")
@@ -124,7 +129,7 @@ export default async function HomePage() {
         <JsonLd key={index} data={schema} />
       ))}
 
-      <Billboard fromPrice={fromPrice} settings={settings} />
+      <Billboard fromPrice={fromPrice} settings={settings} heroImages={heroImages} />
       <WhyParkVega />
       <AttractionsSection items={attractionHighlights} />
       <VisitorInfoCards fromPrice={fromPrice} />

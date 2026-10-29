@@ -12,7 +12,7 @@ import type { Attraction } from "@/types/api";
 // (Requirement 4.4).
 export const revalidate = 60;
 
-const FALLBACK_IMAGE = "/parkvega-hero.jpg";
+const FALLBACK_IMAGE = "/photos/slide-tower-tubes.jpg";
 
 const fetchOpts = { next: { revalidate: 60 } } as const;
 

@@ -75,8 +75,8 @@ export default async function ServicesPage() {
         eyebrow="At your service"
         title={page.title}
         description="From cabanas and lockers to dining and group bookings—everything that makes your Park Vega day effortless from arrival to last ride."
-        image="/parkvega-hero.jpg"
-        imageAlt="Guests relaxing by the pools at Park Vega Waterpark"
+        image="/photos/slide-tower-tubes.jpg"
+        imageAlt="Smiling guests in yellow double tubes in front of the Park Vega slide tower"
       />
 
       <section className="mx-auto max-w-7xl px-4 py-24 sm:px-6">

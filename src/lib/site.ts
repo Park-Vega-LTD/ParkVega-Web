@@ -8,6 +8,9 @@
 
 export const SITE_URL = "https://parkvega.com";
 
+/** The staff console (parkvega-admin), a separate app. */
+export const ADMIN_URL = (process.env.NEXT_PUBLIC_ADMIN_URL ?? "https://admin.parkvega.com").replace(/\/$/, "");
+
 export const PHONE_DISPLAY = "+234 802 444 0445";
 export const PHONE_E164 = "+2348024440445";
 export const EMAIL = "info@parkvega.com";
@@ -24,7 +27,28 @@ export const OPEN_HOURS = "11am – 6pm";
 /** Lowest adult ticket price shown when the ticketing API is unreachable. */
 export const FALLBACK_TICKET_PRICE = 15000;
 
-const MAPS_QUERY = "Park Vega Waterpark, Agbor, Delta State";
+/**
+ * Park Vega's social profiles, shown as icons in the footer. A network with
+ * no URL yet is left out, so fill these in as the accounts are confirmed.
+ */
+export const SOCIAL_LINKS: { network: "youtube" | "instagram" | "facebook" | "x"; label: string; url: string | null }[] = [
+  { network: "youtube", label: "YouTube", url: null },
+  { network: "instagram", label: "Instagram", url: null },
+  { network: "facebook", label: "Facebook", url: null },
+  { network: "x", label: "X (Twitter)", url: null },
+];
+
+/**
+ * Industry associations shown in the footer's "Proud members of" strip. Drop
+ * the official badge into public/brand/members/ and set `logo` to show it;
+ * until then the association's name is shown instead.
+ */
+export const MEMBERSHIPS: { name: string; url: string; logo: { src: string; width: number; height: number } | null }[] = [
+  { name: "World Waterpark Association", url: "https://www.waterparks.org", logo: null },
+  { name: "IAAPA", url: "https://www.iaapa.org", logo: null },
+];
+
+const MAPS_QUERY ="Park Vega Waterpark, Agbor, Delta State";
 
 export const MAPS_URL = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(MAPS_QUERY)}`;
 

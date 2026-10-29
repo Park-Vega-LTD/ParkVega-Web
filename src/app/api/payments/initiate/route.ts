@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiHeaders } from '@/lib/forwarded'
+import { API_URL } from '@/lib/api-url'
 import { cookies, headers } from 'next/headers'
 import { buildRedirectUrl } from '@/lib/flutterwave'
 
@@ -49,13 +51,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // --- 3. Build the redirect URL using the request origin ---
   //     headers() gives us access to the incoming request headers including
   //     the `origin` header (set by browsers on same-origin/CORS requests).
-  //     We fall back to NEXT_PUBLIC_API_URL's origin or an empty string if
+  //     We fall back to the API's origin or an empty string if
   //     neither is available — in practice the browser always sends `origin`.
   const headerStore = await headers()
   const origin =
     headerStore.get('origin') ??
-    (process.env.NEXT_PUBLIC_API_URL
-      ? new URL(process.env.NEXT_PUBLIC_API_URL).origin
+    (API_URL
+      ? new URL(API_URL).origin
       : '')
 
   const redirectUrl = buildRedirectUrl(origin, bookingId)
@@ -63,12 +65,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // --- 4. Call REST API payment initiation endpoint ---
   try {
     const apiRes = await fetch(
-      `${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}/payment/initiate`,
+      `${API_URL}/bookings/${bookingId}/payment/initiate`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+          ...apiHeaders(headerStore),
         },
         body: JSON.stringify({ redirect_url: redirectUrl }),
       }

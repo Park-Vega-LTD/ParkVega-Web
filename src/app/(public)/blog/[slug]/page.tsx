@@ -88,7 +88,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     "@type": "BlogPosting",
     headline: post.title,
     description: excerptOf(post),
-    image: post.cover_image_url ?? `${SITE_URL}/parkvega-hero.jpg`,
+    image: post.cover_image_url ?? `${SITE_URL}/photos/slide-tower-tubes.jpg`,
     datePublished: date,
     dateModified: post.updated_at,
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,

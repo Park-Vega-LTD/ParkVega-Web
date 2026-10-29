@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { API_URL } from '@/lib/api-url'
 import { verifyWebhookHash } from '@/lib/flutterwave'
 
 /**
@@ -30,7 +31,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   // --- 3. Forward raw payload to the REST API webhook endpoint ---
   try {
-    const apiRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/webhook`, {
+    const apiRes = await fetch(`${API_URL}/payments/webhook`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

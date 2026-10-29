@@ -1,12 +1,22 @@
 "use client";
 
-import { Flame, Plus } from "lucide-react";
+import { Baby, Beef, Flame, Heart, Plus, type LucideIcon } from "lucide-react";
+import Image from "next/image";
 import { useState } from "react";
 
 import { cart, useCart } from "@/components/parkvega/food-order/cart-store";
 import { QuantityStepper } from "@/components/parkvega/food-order/quantity-stepper";
+import { BADGE_LABELS, isMenuPhoto, menuDescription } from "@/lib/menu";
 import { cn, formatNaira } from "@/lib/utils";
-import type { MenuItem } from "@/types/api";
+import type { MenuItem, MenuItemBadge } from "@/types/api";
+
+const BADGE_ICONS: Record<MenuItemBadge, LucideIcon> = {
+  KIDS_SPECIAL: Baby,
+  BIG_APPETITE: Beef,
+  FAMILY_FAVOURITE: Heart,
+};
+
+const pillClass = "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-bold";
 
 /**
  * Client island for the food menu section.
@@ -16,7 +26,8 @@ import type { MenuItem } from "@/types/api";
  * parkvega sections). The category tab selection and the order quantities
  * are interactive, so this island owns them while the rest of the page can
  * stay a Server Component. Items staff switch off (`active: false`) show as
- * "Sold out" and cannot be ordered.
+ * "Sold out" and cannot be ordered. Each row shows the dish photo, the
+ * printed labels and, for combos, what comes in it.
  */
 export function FoodMenu({ restaurantId, items = [] }: { restaurantId: string; items?: MenuItem[] }) {
   const cats = ["All", ...Array.from(new Set(items.map((i) => i.category)))];
@@ -59,7 +70,7 @@ export function FoodMenu({ restaurantId, items = [] }: { restaurantId: string; i
         ) : (
           <div className="mt-6 grid gap-6 md:grid-cols-2">
             {shown.map((c) => (
-              <div key={c} className="rounded-3xl bg-card p-5 shadow-sm sm:p-6">
+              <div key={c} data-reveal className="rounded-3xl bg-card p-5 shadow-sm sm:p-6">
                 <h3 className="text-xl font-semibold text-secondary-foreground">{c}</h3>
                 <ul className="mt-3 divide-y divide-border">
                   {items
@@ -67,22 +78,54 @@ export function FoodMenu({ restaurantId, items = [] }: { restaurantId: string; i
                     .map((i) => {
                       const quantity = quantityOf(i.id);
                       const lineItem = { menuItemId: i.id, restaurantId, name: i.name, price: i.price };
+                      const description = menuDescription(i);
+                      const includes = i.includes ?? [];
+                      const badges = i.badges ?? [];
                       return (
                         <li key={i.id} className={cn("flex items-center justify-between gap-4 py-3", !i.active && "opacity-60")}>
-                          <div className="min-w-0">
-                            <p className="font-semibold">
-                              {i.name}
-                              {i.popular && i.active && (
-                                <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-accent px-2 py-0.5 text-[11px] font-bold text-accent-foreground">
-                                  <Flame className="size-3" />
-                                  Popular
-                                </span>
-                              )}
-                            </p>
-                            {i.description && (
-                              <p className="text-xs text-muted-foreground">{i.description}</p>
+                          <div className="flex min-w-0 items-start gap-3">
+                            {isMenuPhoto(i.image_url) && (
+                              <Image
+                                src={i.image_url}
+                                alt=""
+                                width={64}
+                                height={64}
+                                sizes="64px"
+                                className={cn("size-16 shrink-0 rounded-2xl bg-muted object-cover", !i.active && "grayscale")}
+                              />
                             )}
-                            <p className="mt-1 font-bold text-primary-ink">{formatNaira(i.price)}</p>
+                            <div className="min-w-0">
+                              <p className="font-semibold">{i.name}</p>
+                              {((i.popular && i.active) || badges.length > 0) && (
+                                <p className="mt-1 flex flex-wrap gap-1.5">
+                                  {i.popular && i.active && (
+                                    <span className={cn(pillClass, "bg-accent text-accent-foreground")}>
+                                      <Flame className="size-3" aria-hidden />
+                                      Popular
+                                    </span>
+                                  )}
+                                  {badges.map((badge) => {
+                                    const Icon = BADGE_ICONS[badge];
+                                    return (
+                                      <span key={badge} className={cn(pillClass, "bg-ocean-soft text-primary-ink")}>
+                                        {Icon && <Icon className="size-3" aria-hidden />}
+                                        {BADGE_LABELS[badge] ?? badge}
+                                      </span>
+                                    );
+                                  })}
+                                </p>
+                              )}
+                              {description && (
+                                <p className="mt-1 text-xs text-muted-foreground">{description}</p>
+                              )}
+                              {includes.length > 0 && (
+                                <p className="mt-1 text-xs text-muted-foreground">
+                                  <span className="font-semibold text-foreground">Comes with: </span>
+                                  {includes.join(" · ")}
+                                </p>
+                              )}
+                              <p className="mt-1 font-bold text-primary-ink">{formatNaira(i.price)}</p>
+                            </div>
                           </div>
                           {!i.active ? (
                             <span className="shrink-0 rounded-full bg-muted px-3 py-1.5 text-xs font-bold text-muted-foreground">

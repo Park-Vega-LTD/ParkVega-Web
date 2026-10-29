@@ -1,5 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiHeaders } from '@/lib/forwarded'
+import { API_URL } from '@/lib/api-url'
 import { clearAuthCookies } from '@/lib/auth'
+import { ACCESS_COOKIE, REFRESH_COOKIE } from '@/lib/session-cookies'
 
 /**
  * POST /api/auth/logout
@@ -11,15 +14,21 @@ import { clearAuthCookies } from '@/lib/auth'
  * Requirements: 2.3
  */
 export async function POST(request: NextRequest): Promise<NextResponse> {
-  const refreshToken = request.cookies.get('pv_refresh')?.value
+  const refreshToken = request.cookies.get(REFRESH_COOKIE)?.value
+  const accessToken = request.cookies.get(ACCESS_COOKIE)?.value
 
   // Fire-and-forget: call REST API logout but ignore the result entirely.
   // We always clear cookies regardless of whether this succeeds or fails.
   if (refreshToken) {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+      await fetch(`${API_URL}/auth/logout`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...apiHeaders(request.headers),
+          // With the bearer, the API blocklists the access token at once too.
+          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+        },
         body: JSON.stringify({ refresh_token: refreshToken }),
       })
     } catch {

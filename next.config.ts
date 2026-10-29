@@ -1,11 +1,12 @@
 import type { NextConfig } from "next";
 
-// Build-time environment guard: fail fast if the public API base URL is missing.
-// NEXT_PUBLIC_API_URL is required for every API call (client + server). Without
-// it the build cannot produce a working application, so we throw immediately.
-if (!process.env.NEXT_PUBLIC_API_URL) {
+// Build-time environment guard: fail fast if the API base URL is missing.
+// Every API call goes through server code (src/lib/api-url.ts), which reads
+// the server-only PARK_VEGA_API_URL, or NEXT_PUBLIC_API_URL for older
+// environments. Without one the app cannot work, so we throw immediately.
+if (!process.env.PARK_VEGA_API_URL && !process.env.NEXT_PUBLIC_API_URL) {
   throw new Error(
-    "NEXT_PUBLIC_API_URL is not set. Define it in your environment (e.g. .env.local) before building or running the app.",
+    "PARK_VEGA_API_URL is not set. Define it in your environment (e.g. .env.local) before building or running the app.",
   );
 }
 
@@ -29,6 +30,11 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
+        hostname: "parkvega.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
         hostname: "*.parkvega.com",
         pathname: "/**",
       },
@@ -39,6 +45,14 @@ const nextConfig: NextConfig = {
       },
     ],
     minimumCacheTTL: 3600,
+  },
+  async redirects() {
+    // Staff tools moved to the parkvega-admin app; keep old bookmarks working.
+    const adminUrl = (process.env.NEXT_PUBLIC_ADMIN_URL ?? "https://admin.parkvega.com").replace(/\/$/, "");
+    return [
+      { source: "/admin/:path*", destination: `${adminUrl}/admin/:path*`, permanent: false },
+      { source: "/staff/:path*", destination: `${adminUrl}/staff/:path*`, permanent: false },
+    ];
   },
 };
 

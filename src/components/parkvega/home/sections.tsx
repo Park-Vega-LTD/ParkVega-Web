@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -39,6 +40,13 @@ import {
   whatsappUrl,
 } from "@/lib/site";
 
+/** Inline style that staggers a `data-reveal` element by its position in a list. */
+const stagger = (i: number) => ({ "--i": i }) as CSSProperties;
+
+/** Shared hover lift for cards (Tailwind v4 translate is its own CSS property, so it is listed explicitly). */
+const CARD_HOVER =
+  "transition-[translate,box-shadow,border-color] duration-300 ease-out hover:-translate-y-1.5 hover:border-primary/50 hover:shadow-[var(--shadow-card)]";
+
 const WHY: { icon: LucideIcon; title: string; text: string }[] = [
   { icon: Waves, title: "15 attractions", text: "Wave pool, slides, splash zones – one ticket, unlimited rides." },
   { icon: ShieldCheck, title: "Safety first", text: "Life jackets for non-swimmers and staff on hand to show you how to ride every slide safely." },
@@ -51,9 +59,9 @@ export function WhyParkVega() {
     <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
       <SectionHeading eyebrow="Why Park Vega" title="One ticket. A whole day of fun." />
       <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {WHY.map(({ icon: Icon, title, text }) => (
-          <div key={title} className="rounded-3xl border border-border bg-card p-6">
-            <span className="grid size-12 place-items-center rounded-2xl bg-ocean-soft text-primary-ink">
+        {WHY.map(({ icon: Icon, title, text }, i) => (
+          <div key={title} data-reveal style={stagger(i)} className={`group rounded-3xl border border-border bg-card p-6 ${CARD_HOVER}`}>
+            <span className="grid size-12 place-items-center rounded-2xl bg-ocean-soft text-primary-ink transition-[rotate,scale,background-color] duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-primary/20">
               <Icon className="size-6" />
             </span>
             <h3 className="mt-5 text-lg font-semibold">{title}</h3>
@@ -75,31 +83,43 @@ export function AttractionsSection({ items }: { items: AttractionHighlight[] }) 
             title="Slides, waves and splash zones for every age."
             description="Your ticket covers unlimited rides on every attraction, from the ocean-sized Wave Pool to our steepest slides."
           />
-          <Button asChild variant="outline">
+          <Button asChild variant="outline" data-reveal style={stagger(2)} className="group">
             <Link href="/attractions">
-              All attractions <ArrowRight className="size-4" />
+              All attractions <ArrowRight className="size-4 transition-[translate] duration-300 group-hover:translate-x-1" />
             </Link>
           </Button>
         </div>
         <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {items.map((item) => (
-            <article key={item.name} className="overflow-hidden rounded-3xl border border-border bg-card">
-              <div className="relative aspect-[16/10]">
+          {items.map((item, i) => (
+            <article
+              key={item.name}
+              data-reveal
+              style={stagger(i)}
+              className={`group overflow-hidden rounded-3xl border border-border bg-card ${CARD_HOVER}`}
+            >
+              <div className="relative aspect-[16/10] overflow-hidden">
                 <Image
                   src={item.image}
                   alt={`${item.name} at Park Vega Waterpark`}
                   fill
                   sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover"
+                  className="object-cover transition-[scale] duration-700 ease-out group-hover:scale-110"
+                />
+                <div
+                  aria-hidden="true"
+                  className="absolute inset-0 bg-gradient-to-t from-deep/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
               </div>
               <div className="p-5">
-                <h3 className="text-xl font-semibold">{item.name}</h3>
+                <h3 className="text-xl font-semibold transition-colors duration-300 group-hover:text-primary-ink">{item.name}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{item.description}</p>
                 {item.tags.length > 0 && (
                   <ul className="mt-4 flex flex-wrap gap-2">
                     {item.tags.map((tag) => (
-                      <li key={tag} className="rounded-full bg-ocean-soft px-3 py-1 text-xs font-bold text-foreground">
+                      <li
+                        key={tag}
+                        className="rounded-full bg-ocean-soft px-3 py-1 text-xs font-bold text-foreground transition-colors duration-300 group-hover:bg-primary/20"
+                      >
                         {tag}
                       </li>
                     ))}
@@ -132,8 +152,8 @@ export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
       <div>
         <SectionHeading eyebrow="Plan your visit" title="Everything you need for a perfect day." />
         <ul className="mt-8 grid gap-3">
-          {essentials.map((line) => (
-            <li key={line} className="flex items-start gap-3 text-sm">
+          {essentials.map((line, i) => (
+            <li key={line} data-reveal style={stagger(i)} className="flex items-start gap-3 text-sm">
               <Check className="mt-0.5 size-5 shrink-0 text-primary-ink" /> {line}
             </li>
           ))}
@@ -154,7 +174,7 @@ export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
           </Button>
         </div>
       </div>
-      <div className="overflow-hidden rounded-3xl border border-border bg-card">
+      <div data-reveal style={stagger(1)} className="overflow-hidden rounded-3xl border border-border bg-card">
         <table className="w-full text-left text-sm">
           <caption className="bg-deep px-5 py-4 text-left font-display text-lg font-semibold text-hero-foreground">
             Ticket prices
@@ -207,10 +227,12 @@ export function RestaurantSection({ items }: { items: MenuHighlight[] }) {
         </div>
         <div>
           <ul className="grid gap-3">
-            {items.map((item) => (
+            {items.map((item, i) => (
               <li
                 key={item.name}
-                className="flex items-center justify-between gap-4 rounded-2xl border border-hero-foreground/15 bg-hero-foreground/5 p-5"
+                data-reveal
+                style={stagger(i)}
+                className="flex items-center justify-between gap-4 rounded-2xl border border-hero-foreground/15 bg-hero-foreground/5 p-5 transition-[translate,background-color,border-color] duration-300 hover:translate-x-1.5 hover:border-secondary/60 hover:bg-hero-foreground/10"
               >
                 <div>
                   <span className="text-[11px] font-extrabold uppercase text-secondary">{item.label}</span>
@@ -263,9 +285,14 @@ export function CelebrateSection() {
         description="Bring the whole crew. We'll help you plan everything on WhatsApp, from cabanas to group tickets."
       />
       <div className="mt-9 grid gap-5 md:grid-cols-2">
-        {cards.map(({ icon: Icon, title, text, points, cta, message, href, more }) => (
-          <article key={title} className="flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8">
-            <span className="grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground">
+        {cards.map(({ icon: Icon, title, text, points, cta, message, href, more }, i) => (
+          <article
+            key={title}
+            data-reveal
+            style={stagger(i)}
+            className={`group flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 ${CARD_HOVER}`}
+          >
+            <span className="grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground transition-[rotate,scale] duration-300 group-hover:-rotate-6 group-hover:scale-110">
               <Icon className="size-6" />
             </span>
             <h3 className="mt-5 text-2xl font-semibold">{title}</h3>
@@ -310,18 +337,20 @@ export function GettingHereSection() {
           </Button>
         </div>
         <div className="mt-9 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {DIRECTION_CITIES.map(({ city, origin, note }) => (
+          {DIRECTION_CITIES.map(({ city, origin, note }, i) => (
             <a
               key={city}
               href={directionsUrl(origin)}
               target="_blank"
               rel="noopener noreferrer"
-              className="group flex flex-col rounded-3xl border border-border bg-card p-6 hover:border-primary"
+              data-reveal
+              style={stagger(i)}
+              className={`group flex flex-col rounded-3xl border border-border bg-card p-6 ${CARD_HOVER}`}
             >
               <h3 className="text-lg font-semibold">{city} → Park Vega</h3>
               <p className="mt-2 flex-1 text-sm leading-relaxed text-muted-foreground">{note}</p>
               <span className="mt-5 flex items-center gap-2 text-sm font-bold text-primary-ink">
-                <Navigation className="size-4" /> Get directions
+                <Navigation className="size-4 transition-[rotate] duration-300 group-hover:rotate-12" /> Get directions
               </span>
             </a>
           ))}
@@ -378,13 +407,13 @@ export function VisitorInfoCards({ fromPrice }: { fromPrice: number }) {
         <h2 className="text-[1.75rem] font-bold leading-tight text-primary-foreground sm:text-4xl">Plan Your Visit</h2>
         <p className="mt-2 text-lg text-primary-foreground/85">Everything to know before you go.</p>
         <ul className="mt-10 grid gap-5 md:grid-cols-3">
-          {cards.map(({ icon: Icon, title, text, href }) => (
-            <li key={title}>
+          {cards.map(({ icon: Icon, title, text, href }, i) => (
+            <li key={title} data-reveal style={stagger(i)}>
               <Link
                 href={href}
                 className="group flex h-full flex-col items-center rounded-3xl bg-card px-6 py-10 shadow-[var(--shadow-card)] transition-transform hover:-translate-y-1"
               >
-                <span className="grid size-20 place-items-center rounded-full bg-ocean-soft text-foreground">
+                <span className="grid size-20 place-items-center rounded-full bg-ocean-soft text-foreground transition-[scale,background-color] duration-300 group-hover:scale-110 group-hover:bg-primary/20">
                   <Icon className="size-10" strokeWidth={2.5} aria-hidden="true" />
                 </span>
                 <h3 className="mt-6 text-xl font-bold">{title}</h3>
@@ -404,7 +433,7 @@ export function VisitorInfoCards({ fromPrice }: { fromPrice: number }) {
 export function FinalCta({ fromPrice }: { fromPrice: number }) {
   return (
     <section className="px-4 pb-16 sm:px-6 sm:pb-20">
-      <div className="mx-auto max-w-7xl rounded-3xl bg-primary px-6 py-14 text-center text-primary-foreground sm:px-12">
+      <div data-reveal className="mx-auto max-w-7xl rounded-3xl bg-primary px-6 py-14 text-center text-primary-foreground sm:px-12">
         <h2 className="mx-auto max-w-2xl text-balance text-[1.75rem] font-bold leading-tight sm:text-4xl">Ready to make a splash?</h2>
         <p className="mx-auto mt-4 max-w-xl text-primary-foreground/85">
           Tickets from {formatNaira(fromPrice)} · {OPEN_DAYS_SHORT} · Agbor, Delta State

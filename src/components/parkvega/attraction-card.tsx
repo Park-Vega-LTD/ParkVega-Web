@@ -5,7 +5,7 @@ import { Gauge, Ruler, ShieldCheck, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Attraction } from "@/types/api";
 
-const FALLBACK_IMAGE = "/parkvega-hero.jpg";
+const FALLBACK_IMAGE = "/photos/slide-tower-tubes.jpg";
 
 export function AttractionCard({ attraction }: { attraction: Attraction }) {
   const badge = attraction.thrill_level ? `${attraction.thrill_level} thrill` : attraction.category;
@@ -18,7 +18,7 @@ export function AttractionCard({ attraction }: { attraction: Attraction }) {
   const detailIcons = [Users, Gauge, Ruler, ShieldCheck];
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-border bg-card">
+    <article data-reveal className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
       <div className="relative aspect-[4/3] w-full">
         <Image
           src={attraction.image_url || FALLBACK_IMAGE}

@@ -1,31 +1,33 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   ChevronDown,
   Clock3,
-  Mail,
   MapPin,
   Menu,
-  MessageCircle,
-  Phone,
   Ticket,
   X,
 } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/parkvega/logo";
+import { FacebookIcon, InstagramIcon, MailIcon, XLogoIcon, YouTubeIcon } from "@/components/parkvega/social-icons";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import {
   ADDRESS,
   EMAIL,
+  MEMBERSHIPS,
   OPEN_DAYS_SHORT,
   OPEN_HOURS,
   PHONE_DISPLAY,
   PHONE_E164,
+  SOCIAL_LINKS,
   whatsappUrl,
+  ADMIN_URL,
 } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
@@ -236,34 +238,109 @@ export function SiteHeader() {
   </>;
 }
 
-const footerQuickLinks = [
-  { label: "Buy Tickets", to: "/tickets" },
-  { label: "Attractions", to: "/attractions" },
-  { label: "Plan Your Visit", to: "/plan-your-visit" },
-  { label: "Dining", to: "/restaurants" },
-  { label: "Events calendar", to: "/events" },
-  { label: "Birthday parties", to: "/birthday-parties" },
-  { label: "School excursions", to: "/school-excursions" },
-  { label: "Corporate & groups", to: "/services" },
-  { label: "Directions", to: "/directions-from-benin-asaba-warri-onitsha" },
-  { label: "Blog & guides", to: "/blog" },
-  { label: "My bookings", to: "/my-bookings" },
+const footerColumns = [
+  {
+    title: "Quick links",
+    links: [
+      { label: "Park Rules", to: "/plan-your-visit#safety" },
+      { label: "Plan Your Visit", to: "/plan-your-visit" },
+      { label: "Buy Tickets", to: "/tickets" },
+      // No standalone terms page yet; the prohibited-items rules are the closest match.
+      { label: "T & C", to: "/plan-your-visit#prohibited" },
+      { label: "Restaurant", to: "/restaurants" },
+    ],
+  },
+  {
+    title: "Groups & getting here",
+    links: [
+      { label: "Birthday Parties", to: "/birthday-parties" },
+      { label: "School Excursions", to: "/school-excursions" },
+      { label: "Directions", to: "/directions-from-benin-asaba-warri-onitsha" },
+    ],
+  },
 ] as const;
+
+const SOCIAL_ICONS = { youtube: YouTubeIcon, instagram: InstagramIcon, facebook: FacebookIcon, x: XLogoIcon } as const;
+
+const footerLinkClass = "w-fit font-medium text-hero-foreground transition-colors hover:text-primary";
+const footerHeadingClass = "font-sans text-sm font-bold uppercase tracking-[0.18em] text-coral";
+
+/** Sand, surf and a floating ring and ball: the band where the page meets the footer. */
+function FooterWaves() {
+  return <div className="relative h-16 overflow-hidden sm:h-24" aria-hidden="true">
+    <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="absolute inset-0 size-full">
+      <rect width="1440" height="100" className="fill-accent" />
+      <path d="M0 18 C 180 30 360 8 540 20 S 900 30 1080 16 S 1320 8 1440 20 V100 H0Z" className="fill-primary" />
+      <path d="M0 62 C 200 82 380 50 600 66 S 980 84 1180 62 S 1380 56 1440 66 V100 H0Z" className="fill-primary-ink" />
+      <path d="M0 84 C 240 96 480 78 720 88 S 1200 98 1440 84 V100 H0Z" className="fill-deep" />
+      <circle cx="290" cy="6" r="7" fill="#fff" opacity=".9" /><circle cx="450" cy="32" r="6" fill="#fff" opacity=".35" />
+      <circle cx="925" cy="70" r="4" fill="#fff" opacity=".6" /><circle cx="1455" cy="4" r="6" fill="#fff" opacity=".9" />
+    </svg>
+    <svg viewBox="0 0 120 52" className="absolute left-[40%] top-[12%] w-16 sm:w-28">
+      <ellipse cx="60" cy="26" rx="58" ry="24" fill="#FF6B1A" /><ellipse cx="60" cy="26" rx="28" ry="11" className="fill-primary-ink" />
+      <path d="M44 4h32v10H44zM44 38h32v10H44z" fill="#fff" />
+    </svg>
+    <svg viewBox="0 0 40 40" className="absolute left-[65.5%] top-[18%] w-7 sm:w-11">
+      <circle cx="20" cy="20" r="19" fill="#fff" />
+      <path d="M20 20V1a19 19 0 0 1 19 19z" fill="#FF6B1A" /><path d="M20 20h19a19 19 0 0 1-19 19z" className="fill-accent" />
+      <path d="M20 20v19A19 19 0 0 1 1 20z" fill="#1E88E5" />
+    </svg>
+  </div>;
+}
 
 export function SiteFooter() {
   const h = useHours();
-  return <footer className="border-t border-border bg-background px-4 py-14 sm:px-6">
-    <div className="mx-auto grid max-w-7xl gap-10 md:grid-cols-[1.2fr_1fr_1.2fr]">
-      <div><Link href="/" aria-label="Park Vega Waterpark home" className="inline-block"><Logo size="sm" /></Link><p className="mt-4 max-w-sm text-sm text-muted-foreground">Delivering your kind of fun. Waves, slides and splash zones for every age in Agbor, Delta State.</p><p className="mt-4 flex items-center gap-2 text-sm font-semibold"><Clock3 className="size-4 text-primary-ink" /> {h.days} · {h.hours}</p></div>
-      <div><h2 className="text-sm font-bold uppercase">Quick links</h2><div className="mt-4 grid grid-cols-2 gap-3 text-sm text-muted-foreground md:grid-cols-1">{footerQuickLinks.map((item) => <Link key={item.to} href={item.to} className="w-fit hover:text-primary-ink">{item.label}</Link>)}</div></div>
-      <div><h2 className="text-sm font-bold uppercase">Contact</h2>
-        <p className="mt-4 flex items-start gap-2 text-sm text-muted-foreground"><MapPin className="mt-0.5 size-4 shrink-0 text-primary-ink" /> {h.address}</p>
-        <a href={`tel:${PHONE_E164}`} className="mt-3 flex w-fit items-center gap-2 text-sm font-semibold hover:text-primary-ink"><Phone className="size-4 text-primary-ink" /> {PHONE_DISPLAY}</a>
-        <a href={`mailto:${EMAIL}`} className="mt-3 flex w-fit items-center gap-2 text-sm text-muted-foreground hover:text-primary-ink"><Mail className="size-4 text-primary-ink" /> {EMAIL}</a>
-        <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className="mt-3 flex w-fit items-center gap-2 text-sm font-semibold hover:text-primary-ink"><MessageCircle className="size-4 text-primary-ink" /> Chat on WhatsApp</a>
+  const socials = SOCIAL_LINKS.filter((social) => social.url);
+  return <footer className="bg-deep text-hero-foreground">
+    <FooterWaves />
+    <div className="px-4 pb-10 pt-12 sm:px-6 lg:pt-16">
+      <div className="mx-auto grid max-w-7xl gap-10 sm:grid-cols-2 lg:grid-cols-[1.9fr_1fr_1.1fr_1.3fr]">
+        <div className="sm:col-span-2 lg:col-span-1">
+          <Link href="/" aria-label="Park Vega Waterpark home" className="inline-block"><Logo tone="onDark" className="h-auto w-44" /></Link>
+          <p className="mt-6 font-display text-2xl font-bold sm:text-[28px]">Delivering Your Kind Of Fun</p>
+          <ul className="mt-6 flex flex-wrap gap-3">
+            {socials.map((social) => {
+              const Icon = SOCIAL_ICONS[social.network];
+              return <li key={social.network}><a href={social.url!} target="_blank" rel="noopener noreferrer" aria-label={`Park Vega on ${social.label}`} className="grid size-13 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"><Icon className="size-7" /></a></li>;
+            })}
+            <li><a href={`mailto:${EMAIL}`} aria-label={`Email Park Vega at ${EMAIL}`} className="grid size-13 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"><MailIcon className="size-7" /></a></li>
+          </ul>
+        </div>
+        {footerColumns.map((column) => (
+          <nav key={column.title} aria-label={column.title}>
+            <h2 className={footerHeadingClass}>{column.title}</h2>
+            <ul className="mt-5 grid gap-3 text-lg">{column.links.map((item) => <li key={item.label}><Link href={item.to} className={footerLinkClass}>{item.label}</Link></li>)}</ul>
+          </nav>
+        ))}
+        <div>
+          <h2 className={footerHeadingClass}>Contact</h2>
+          <address className="mt-5 grid gap-3 text-lg not-italic">
+            <p className="text-hero-foreground/80">{h.address}</p>
+            <a href={`mailto:${EMAIL}`} className={footerLinkClass}>{EMAIL}</a>
+            <a href={`tel:${PHONE_E164}`} className={footerLinkClass}>{PHONE_DISPLAY}</a>
+            <a href={whatsappUrl()} target="_blank" rel="noopener noreferrer" className={footerLinkClass}>Chat on WhatsApp</a>
+          </address>
+        </div>
+      </div>
+      <div className="mx-auto mt-12 flex max-w-7xl flex-col items-start gap-5 rounded-3xl bg-white px-6 py-6 text-deep sm:flex-row sm:items-center sm:gap-8 sm:px-8">
+        <p className="shrink-0 font-sans text-sm font-bold uppercase tracking-[0.18em] text-deep/75">Proud members of</p>
+        <ul className="flex flex-wrap items-center gap-6">
+          {MEMBERSHIPS.map((member) => (
+            <li key={member.name}>
+              <a href={member.url} target="_blank" rel="noopener noreferrer" className="block transition-opacity hover:opacity-80">
+                {member.logo
+                  ? <Image src={member.logo.src} alt={member.name} width={member.logo.width} height={member.logo.height} className="h-14 w-auto" />
+                  : <span className="block rounded-lg border border-deep/15 px-4 py-2 font-display text-lg font-bold text-primary-ink">{member.name}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div className="mx-auto mt-12 flex max-w-7xl flex-col items-center gap-2 border-t border-white/15 pt-8 text-center text-sm uppercase tracking-wider text-hero-foreground/70">
+        <p>Copyright © {new Date().getFullYear()} Park Vega. All rights reserved.</p>
+        <a href={`${ADMIN_URL}/login`} className="text-xs normal-case tracking-normal text-hero-foreground/40 hover:text-hero-foreground">Staff login</a>
       </div>
     </div>
-    <div className="mx-auto mt-12 flex max-w-7xl justify-between border-t border-border pt-6 text-xs text-muted-foreground"><span>© {new Date().getFullYear()} Park Vega Waterpark</span><Link href="/admin" className="hover:text-primary-ink">Staff login</Link></div>
   </footer>;
 }
 

@@ -4,7 +4,7 @@
  * Client-side fetch utility for calling BFF Route Handlers only.
  *
  * IMPORTANT: `clientFetch` must ONLY be called with `/api/...` BFF paths.
- * It must NEVER be used to call the REST API at `NEXT_PUBLIC_API_URL` directly.
+ * It must NEVER be used to call the REST API at (`API_URL`) directly.
  * All REST API communication from the browser must go through the BFF layer.
  */
 export async function clientFetch<T>(
@@ -21,6 +21,9 @@ export async function clientFetch<T>(
     const body = await res.json().catch(() => ({}))
     throw new Error(body.message ?? `Request failed ${res.status}`)
   }
+
+  // 204 responses (logout, staff deactivation) have no body at all.
+  if (res.status === 204) return undefined as T
 
   // The data proxy passes REST responses through as `{ data, meta }`
   // envelopes; custom BFF routes (auth, payments) return plain objects.

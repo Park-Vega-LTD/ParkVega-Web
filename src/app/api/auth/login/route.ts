@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { apiHeaders } from '@/lib/forwarded'
+import { API_URL } from '@/lib/api-url'
 import { setAuthCookies } from '@/lib/auth'
 import type { User } from '@/types/api'
 
@@ -34,9 +36,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const { email, password } = body
 
   try {
-    const apiRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+    const apiRes = await fetch(`${API_URL}/auth/login`, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...apiHeaders(request.headers) },
       body: JSON.stringify({ email, password }),
     })
 

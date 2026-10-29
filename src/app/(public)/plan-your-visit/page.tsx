@@ -140,8 +140,8 @@ export default async function PlanYourVisitPage() {
         eyebrow="Before you set out"
         title={page?.title ?? "Plan your visit to Park Vega."}
         description={`Tickets from ${formatNaira(fromPrice)}. Open ${OPEN_DAYS_LONG}, ${OPEN_HOURS}. Here's everything you need for a smooth splash day.`}
-        image="/parkvega-hero.jpg"
-        imageAlt="Guests enjoying the pools at Park Vega Waterpark"
+        image="/photos/slide-tower-tubes.jpg"
+        imageAlt="Smiling guests in yellow double tubes in front of the Park Vega slide tower"
       />
 
       <nav aria-label="On this page" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">

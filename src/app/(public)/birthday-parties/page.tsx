@@ -36,9 +36,9 @@ const INCLUDED = [
 
 const PHOTOS = [
   { src: "/splash-pad.jpg", alt: "Children playing in the Park Vega splash zone" },
-  { src: "/parkvega-hero.jpg", alt: "Families in the Park Vega wave pool" },
+  { src: "/photos/wave-pool-tubes.jpg", alt: "Friends cheering from rubber rings in the Park Vega wave pool" },
   { src: "/park-food.jpg", alt: "Party food from Park Vega Restaurant" },
-  { src: "/serpent-slide.jpg", alt: "Water slides at Park Vega" },
+  { src: "/photos/racing-slide-friends.jpg", alt: "Two friends laughing as they splash down the racing slide" },
 ];
 
 export default function BirthdayPartiesPage() {

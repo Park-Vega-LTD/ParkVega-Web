@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
+import Image from "next/image";
+import { Suspense, type CSSProperties } from "react";
 import { UtensilsCrossed } from "lucide-react";
 
 import { FaqBlock } from "@/components/parkvega/faq-block";
@@ -24,14 +25,34 @@ export const metadata: Metadata = {
     description:
       "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
     type: "website",
+    images: ["/restaurant/bbq-chicken.jpg"],
   },
   twitter: {
     card: "summary_large_image",
     title: "Restaurants & Menus | Park Vega Waterpark",
     description:
       "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
+    images: ["/restaurant/bbq-chicken.jpg"],
   },
 };
+
+const GALLERY = [
+  {
+    src: "/restaurant/bbq-chicken.jpg",
+    alt: "Glazed barbecue chicken quarter served with chunky chips",
+    label: "BBQ chicken & chips",
+  },
+  {
+    src: "/restaurant/fried-rice.jpg",
+    alt: "Fried rice with sweetcorn, peas and greens, served with spicy beef",
+    label: "Fried rice & peppered beef",
+  },
+  {
+    src: "/restaurant/blue-lime-drink.jpg",
+    alt: "Chilled blue drink in a martini glass garnished with a lime slice",
+    label: "Cool drinks",
+  },
+];
 
 const fetchOpts = { next: { revalidate: 60 } } as const;
 
@@ -70,6 +91,29 @@ export default async function RestaurantsPage() {
           title="Big flavours between big thrills."
           description="Order online and pick up in person at the counter – no waiting in line. Prices in Naira."
         />
+        {/* Swipeable strip on phones, three-up grid from sm. */}
+        <div className="-mx-4 mt-10 flex snap-x snap-mandatory gap-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:overflow-visible sm:px-0 sm:pb-0">
+          {GALLERY.map((photo, i) => (
+            <figure
+              key={photo.src}
+              data-reveal
+              style={{ "--i": i } as CSSProperties}
+              className="relative aspect-[4/5] w-[78%] shrink-0 snap-start overflow-hidden rounded-3xl bg-muted sm:w-auto"
+            >
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                sizes="(max-width: 640px) 78vw, 33vw"
+                className="object-cover transition-transform duration-500 hover:scale-105"
+                priority={i === 0}
+              />
+              <figcaption className="absolute bottom-3 left-3 rounded-full bg-background/90 px-3 py-1 text-xs font-bold text-foreground">
+                {photo.label}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
       </section>
 
       {activeRestaurants.length === 0 ? (

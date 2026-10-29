@@ -1,3 +1,4 @@
+import { Fragment, type CSSProperties } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowRight, Ticket } from "lucide-react";
@@ -32,10 +33,17 @@ export function PageHero({
         />
         <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 via-foreground/60 to-transparent" />
         <div className="relative flex min-h-[460px] max-w-2xl flex-col justify-end p-6 pb-12 sm:p-12">
-          <span className="text-xs font-extrabold uppercase text-secondary">{eyebrow}</span>
-          <h1 className="mt-3 text-balance text-[2.25rem] font-bold leading-tight text-hero-foreground sm:text-5xl">{title}</h1>
-          <p className="mt-5 max-w-xl text-base leading-relaxed text-hero-foreground/80 sm:text-lg">{description}</p>
-          <div className="mt-7 flex flex-wrap gap-3">
+          <span data-reveal className="text-xs font-extrabold uppercase text-secondary">{eyebrow}</span>
+          <h1 data-reveal="words" className="mt-3 text-balance text-[2.25rem] font-bold leading-tight text-hero-foreground sm:text-5xl">
+            {title.split(" ").map((word, i) => (
+              <Fragment key={i}>
+                {i > 0 && " "}
+                <span style={{ "--w": i } as CSSProperties}>{word}</span>
+              </Fragment>
+            ))}
+          </h1>
+          <p data-reveal style={{ "--i": 3 } as CSSProperties} className="mt-5 max-w-xl text-base leading-relaxed text-hero-foreground/80 sm:text-lg">{description}</p>
+          <div data-reveal style={{ "--i": 4 } as CSSProperties} className="mt-7 flex flex-wrap gap-3">
             {ticketCta && (
               <Button asChild variant="ticket">
                 <Link href="/tickets">
@@ -66,9 +74,27 @@ export function SectionHeading({
 }) {
   return (
     <div>
-      <span className="text-sm font-bold uppercase tracking-wide text-primary-ink">{eyebrow}</span>
-      <h2 className="mt-2 max-w-3xl text-balance text-[1.75rem] font-bold leading-tight sm:text-4xl">{title}</h2>
-      {description && <p className="mt-3 max-w-2xl text-lg leading-relaxed text-muted-foreground">{description}</p>}
+      <span data-reveal className="block text-sm font-bold uppercase tracking-wide text-primary-ink">
+        {eyebrow}
+      </span>
+      {/* Word-by-word reveal; the spans are inline-block so the heading still wraps and reads normally. */}
+      <h2 data-reveal="words" className="mt-2 max-w-3xl text-balance text-[1.75rem] font-bold leading-tight sm:text-4xl">
+        {title.split(" ").map((word, i) => (
+          <Fragment key={i}>
+            {i > 0 && " "}
+            <span style={{ "--w": i } as CSSProperties}>{word}</span>
+          </Fragment>
+        ))}
+      </h2>
+      {description && (
+        <p
+          data-reveal
+          style={{ "--i": 3 } as CSSProperties}
+          className="mt-3 max-w-2xl text-lg leading-relaxed text-muted-foreground"
+        >
+          {description}
+        </p>
+      )}
     </div>
   );
 }

@@ -1,4 +1,8 @@
-import { cookies } from 'next/headers'
+import { cache } from 'react'
+import { cookies, headers } from 'next/headers'
+import { API_URL } from '@/lib/api-url'
+import { forwardedFor } from '@/lib/forwarded'
+import { ACCESS_COOKIE } from '@/lib/session-cookies'
 import type { PaginationMeta } from '@/types/api'
 
 export class ApiError extends Error {
@@ -18,12 +22,14 @@ type Envelope<T> = { data: T; meta: PaginationMeta }
 async function apiFetch<T>(
   path: string,
   options: RequestInit = {},
-  token?: string
+  token?: string,
+  extraHeaders: Record<string, string> = {}
 ): Promise<T> {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${path}`, {
+  const res = await fetch(`${API_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...extraHeaders,
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...options.headers,
     },
@@ -41,35 +47,33 @@ async function apiFetch<T>(
 /**
  * Fetch public, non-personalised data. It never reads cookies, so pages that
  * use it stay statically cached (ISR) instead of hitting the API per request.
+ * It sends no correlation ID either: headers are part of Next's fetch cache
+ * key, so a fresh ID per call would defeat the cache.
  */
 export async function publicFetch<T>(path: string, options?: RequestInit): Promise<T> {
   return apiFetch<T>(path, options)
 }
 
-// 401 retry with refresh
+/** One correlation ID per server request, so identical fetches still de-duplicate. */
+const requestCorrelationId = cache(() => crypto.randomUUID())
+
+/**
+ * Fetch with the visitor's session. The proxy has already refreshed an
+ * expired session before this render started, and a Server Component can't
+ * write cookies, so a 401 here is final: it throws AuthError.
+ */
 export async function serverFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  const cookieStore = await cookies()
-  const accessToken = cookieStore.get('pv_access')?.value
+  const accessToken = (await cookies()).get(ACCESS_COOKIE)?.value
+  const incoming = await headers()
+  const extra = {
+    ...forwardedFor(incoming),
+    'X-Correlation-ID': incoming.get('x-correlation-id') ?? requestCorrelationId(),
+  }
 
   try {
-    return await apiFetch<T>(path, options, accessToken)
+    return await apiFetch<T>(path, options, accessToken, extra)
   } catch (err) {
-    if (err instanceof ApiError && err.status === 401) {
-      const refreshToken = cookieStore.get('pv_refresh')?.value
-      if (!refreshToken) throw new AuthError()
-
-      const refreshRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ refresh_token: refreshToken }),
-      })
-
-      if (!refreshRes.ok) throw new AuthError()
-
-      const { data } = await refreshRes.json()
-      // Note: cookie update in Route Handler context only — Server Components cannot set cookies
-      return await apiFetch<T>(path, options, data.access_token)
-    }
+    if (err instanceof ApiError && err.status === 401) throw new AuthError()
     throw err
   }
 }

@@ -7,7 +7,7 @@ export function ReviewsGrid() {
   return (
     <div className="grid gap-5 md:grid-cols-3">
       {REVIEWS.map(({ quote, author }) => (
-        <figure key={author} className="flex flex-col rounded-3xl border border-border bg-card p-6">
+        <figure key={author} data-reveal className="card-lift flex flex-col rounded-3xl border border-border bg-card p-6">
           <div className="flex gap-0.5 text-accent" aria-label="5 out of 5 stars">
             {Array.from({ length: 5 }, (_, i) => (
               <Star key={i} className="size-4 fill-current" />

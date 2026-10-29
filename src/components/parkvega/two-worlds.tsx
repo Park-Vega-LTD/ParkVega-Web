@@ -7,7 +7,7 @@ import { useState } from "react";
 
 const foodImage = "/park-food.jpg";
 const lazyRiverImage = "/lazy-river.jpg";
-const heroImage = "/parkvega-hero.jpg";
+const heroImage = "/photos/slide-tower-tubes.jpg";
 
 // Paste the YouTube links here when they are ready, e.g.
 // waterpark: "https://www.youtube.com/watch?v=VIDEO_ID"

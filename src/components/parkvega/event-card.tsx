@@ -15,7 +15,7 @@ export function EventCard({ event }: { event: Event }) {
     : "Date to be announced";
 
   return (
-    <article className="overflow-hidden rounded-3xl border border-border bg-card">
+    <article data-reveal className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
       {event.image_url && (
         <div className="relative aspect-[4/3] w-full">
           <Image

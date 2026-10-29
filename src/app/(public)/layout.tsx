@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
+import { ScrollReveal } from "@/components/parkvega/scroll-reveal";
 import { SiteChrome } from "@/components/parkvega/site-chrome";
 import { getSiteSettings } from "@/lib/public-data";
 import { shortDays } from "@/lib/site";
@@ -14,6 +15,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         notice: settings.notice,
       }}
     >
+      <ScrollReveal />
       {children}
     </SiteChrome>
   );

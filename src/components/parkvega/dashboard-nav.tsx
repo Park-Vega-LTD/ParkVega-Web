@@ -19,9 +19,6 @@ export function DashboardNav() {
   const isActive = (href: string) =>
     pathname === href || pathname.startsWith(`${href}/`);
 
-  // The admin area has its own navigation; two side menus would squeeze the editors.
-  if (pathname.startsWith("/admin")) return null;
-
   return (
     <aside className="lg:w-64 lg:shrink-0">
       <Link
