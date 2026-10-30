@@ -44,8 +44,8 @@ export const SOCIAL_LINKS: { network: "youtube" | "instagram" | "facebook" | "x"
  * until then the association's name is shown instead.
  */
 export const MEMBERSHIPS: { name: string; url: string; logo: { src: string; width: number; height: number } | null }[] = [
-  { name: "World Waterpark Association", url: "https://www.waterparks.org", logo: null },
-  { name: "IAAPA", url: "https://www.iaapa.org", logo: null },
+  { name: "World Waterpark Association", url: "https://www.waterparks.org", logo: { src: "/brand/members/world-waterpark-association.png", width: 448, height: 89 } },
+  { name: "IAAPA", url: "https://www.iaapa.org", logo: { src: "/brand/members/iaapa.png", width: 370, height: 117 } },
 ];
 
 const MAPS_QUERY ="Park Vega Waterpark, Agbor, Delta State";

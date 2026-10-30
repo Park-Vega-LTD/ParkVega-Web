@@ -4,17 +4,26 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
+  BookOpen,
+  BriefcaseBusiness,
+  Cake,
+  CalendarClock,
+  CalendarDays,
   ChevronDown,
   Clock3,
   MapPin,
   Menu,
+  Route,
+  School,
+  ShieldCheck,
   Ticket,
   X,
+  type LucideIcon,
 } from "lucide-react";
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/parkvega/logo";
-import { FacebookIcon, InstagramIcon, MailIcon, XLogoIcon, YouTubeIcon } from "@/components/parkvega/social-icons";
+import { FacebookIcon, InstagramIcon, XLogoIcon, YouTubeIcon } from "@/components/parkvega/social-icons";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -58,7 +67,16 @@ function useScrolledPast(enabled: boolean) {
   return enabled ? past : true;
 }
 
-type NavLink = { label: string; to: string; blurb?: string };
+type NavTone = "ocean" | "coral" | "sun" | "leaf";
+type NavLink = { label: string; to: string; blurb?: string; icon?: LucideIcon; tone?: NavTone };
+
+/** Icon tile colours for dropdown items; each pairs a soft fill with a readable ink. */
+const NAV_TONES: Record<NavTone, string> = {
+  ocean: "bg-sky-100 text-sky-700 group-hover:bg-sky-600 group-hover:text-white",
+  coral: "bg-orange-100 text-orange-700 group-hover:bg-orange-500 group-hover:text-white",
+  sun: "bg-amber-100 text-amber-700 group-hover:bg-amber-500 group-hover:text-white",
+  leaf: "bg-lime-100 text-lime-700 group-hover:bg-lime-600 group-hover:text-white",
+};
 type NavEntry = NavLink | { label: string; items: NavLink[] };
 
 /** Primary navigation (brand guide §5): five areas plus a persistent Buy Tickets. */
@@ -68,21 +86,21 @@ const NAV: NavEntry[] = [
   {
     label: "Groups & Events",
     items: [
-      { label: "Birthday parties", to: "/birthday-parties", blurb: "Cabanas, food and party packages" },
-      { label: "School excursions", to: "/school-excursions", blurb: "Group pricing and safety" },
-      { label: "Corporate & group bookings", to: "/services", blurb: "Cabanas, group hire and services" },
-      { label: "Events calendar", to: "/events", blurb: "Seasonal events, holiday openings, promos" },
+      { label: "Birthday parties", to: "/birthday-parties", blurb: "Cabanas, food and party packages", icon: Cake, tone: "coral" },
+      { label: "School excursions", to: "/school-excursions", blurb: "Group pricing and safety", icon: School, tone: "sun" },
+      { label: "Corporate & group bookings", to: "/services", blurb: "Cabanas, group hire and services", icon: BriefcaseBusiness, tone: "ocean" },
+      { label: "Events calendar", to: "/events", blurb: "Seasonal events, holiday openings, promos", icon: CalendarDays, tone: "leaf" },
     ],
   },
   { label: "Dining", to: "/restaurants" },
   {
     label: "Visitor Information",
     items: [
-      { label: "Ticket prices & hours", to: "/plan-your-visit#prices", blurb: "Full price list and opening days" },
-      { label: "Directions", to: "/directions-from-benin-asaba-warri-onitsha", blurb: "From Benin, Asaba, Warri and Onitsha" },
-      { label: "Park rules & safety", to: "/plan-your-visit#safety", blurb: "What to wear and what to leave at home" },
-      { label: "Plan My Day", to: "/my-day", blurb: "A day plan built for your group" },
-      { label: "Blog & guides", to: "/blog", blurb: "Visit tips and park news" },
+      { label: "Ticket prices & hours", to: "/plan-your-visit#prices", blurb: "Full price list and opening days", icon: Ticket, tone: "leaf" },
+      { label: "Directions", to: "/directions-from-benin-asaba-warri-onitsha", blurb: "From Benin, Asaba, Warri and Onitsha", icon: Route, tone: "ocean" },
+      { label: "Park rules & safety", to: "/plan-your-visit#safety", blurb: "What to wear and what to leave at home", icon: ShieldCheck, tone: "coral" },
+      { label: "Plan My Day", to: "/my-day", blurb: "A day plan built for your group", icon: CalendarClock, tone: "sun" },
+      { label: "Blog & guides", to: "/blog", blurb: "Visit tips and park news", icon: BookOpen, tone: "ocean" },
     ],
   },
 ];
@@ -132,9 +150,12 @@ function NavDropdown({
         <ul id={id} className="absolute left-0 top-full mt-2 w-80 rounded-2xl border border-border bg-card p-2 shadow-[var(--shadow-card)]">
           {entry.items.map((item) => (
             <li key={item.to}>
-              <Link href={item.to} onClick={onClose} className="block rounded-xl px-3 py-2.5 hover:bg-ocean-soft">
-                <span className="block text-sm font-bold">{item.label}</span>
-                {item.blurb && <span className="block text-xs text-muted-foreground">{item.blurb}</span>}
+              <Link href={item.to} onClick={onClose} className="group flex items-start gap-3 rounded-xl px-3 py-2.5 hover:bg-ocean-soft">
+                {item.icon && <span className={cn("grid size-9 shrink-0 place-items-center rounded-lg transition-colors", NAV_TONES[item.tone ?? "ocean"])}><item.icon className="size-[18px]" strokeWidth={2.25} aria-hidden="true" /></span>}
+                <span className="min-w-0">
+                  <span className="block text-sm font-bold">{item.label}</span>
+                  {item.blurb && <span className="block text-xs text-muted-foreground">{item.blurb}</span>}
+                </span>
               </Link>
             </li>
           ))}
@@ -216,7 +237,10 @@ export function SiteHeader() {
                   <ul>
                     {entry.items.map((item) => (
                       <li key={item.to}>
-                        <Link href={item.to} onClick={() => setOpen(false)} className={cn("flex min-h-12 items-center rounded-xl px-3 font-semibold", isActive(item.to) && "bg-ocean-soft text-primary-ink")}>{item.label}</Link>
+                        <Link href={item.to} onClick={() => setOpen(false)} className={cn("group flex min-h-12 items-center gap-3 rounded-xl px-3 font-semibold", isActive(item.to) && "bg-ocean-soft text-primary-ink")}>
+                          {item.icon && <span className={cn("grid size-8 shrink-0 place-items-center rounded-lg", NAV_TONES[item.tone ?? "ocean"])}><item.icon className="size-4" strokeWidth={2.25} aria-hidden="true" /></span>}
+                          {item.label}
+                        </Link>
                       </li>
                     ))}
                   </ul>
@@ -298,13 +322,12 @@ export function SiteFooter() {
         <div className="sm:col-span-2 lg:col-span-1">
           <Link href="/" aria-label="Park Vega Waterpark home" className="inline-block"><Logo tone="onDark" className="h-auto w-44" /></Link>
           <p className="mt-6 font-display text-2xl font-bold sm:text-[28px]">Delivering Your Kind Of Fun</p>
-          <ul className="mt-6 flex flex-wrap gap-3">
+          {socials.length > 0 && <ul className="mt-6 flex flex-wrap gap-3">
             {socials.map((social) => {
               const Icon = SOCIAL_ICONS[social.network];
               return <li key={social.network}><a href={social.url!} target="_blank" rel="noopener noreferrer" aria-label={`Park Vega on ${social.label}`} className="grid size-13 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"><Icon className="size-7" /></a></li>;
             })}
-            <li><a href={`mailto:${EMAIL}`} aria-label={`Email Park Vega at ${EMAIL}`} className="grid size-13 place-items-center rounded-full bg-white/10 transition-colors hover:bg-white/20"><MailIcon className="size-7" /></a></li>
-          </ul>
+          </ul>}
         </div>
         {footerColumns.map((column) => (
           <nav key={column.title} aria-label={column.title}>
@@ -322,14 +345,14 @@ export function SiteFooter() {
           </address>
         </div>
       </div>
-      <div className="mx-auto mt-12 flex max-w-7xl flex-col items-start gap-5 rounded-3xl bg-white px-6 py-6 text-deep sm:flex-row sm:items-center sm:gap-8 sm:px-8">
-        <p className="shrink-0 font-sans text-sm font-bold uppercase tracking-[0.18em] text-deep/75">Proud members of</p>
-        <ul className="flex flex-wrap items-center gap-6">
+      <div className="mx-auto mt-12 flex max-w-7xl flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+        <p className="shrink-0 font-sans text-sm font-bold uppercase tracking-[0.18em] text-hero-foreground/70">Proud members of</p>
+        <ul className="flex flex-wrap items-center gap-8">
           {MEMBERSHIPS.map((member) => (
             <li key={member.name}>
               <a href={member.url} target="_blank" rel="noopener noreferrer" className="block transition-opacity hover:opacity-80">
                 {member.logo
-                  ? <Image src={member.logo.src} alt={member.name} width={member.logo.width} height={member.logo.height} className="h-14 w-auto" />
+                  ? <Image src={member.logo.src} alt={member.name} width={member.logo.width} height={member.logo.height} className="h-12 w-auto brightness-0 invert" />
                   : <span className="block rounded-lg border border-deep/15 px-4 py-2 font-display text-lg font-bold text-primary-ink">{member.name}</span>}
               </a>
             </li>
