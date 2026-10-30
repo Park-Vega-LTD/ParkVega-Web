@@ -2,12 +2,13 @@
 
 import { CheckCircle2, Loader2, ShoppingBag, UtensilsCrossed } from "lucide-react";
 import { useSearchParams } from "next/navigation";
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 
 import {
   cart,
   cartCount,
   cartTotal,
+  OPEN_FOOD_ORDER_EVENT,
   useCart,
   type CartLine,
   type PlacedOrder,
@@ -132,6 +133,12 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
   const [whatsappFallback, setWhatsappFallback] = useState<string | null>(null);
   const [openDates] = useState(() => upcomingOpenDates(extraOpenDates));
 
+  useEffect(() => {
+    const onOpen = () => setOpen(true);
+    window.addEventListener(OPEN_FOOD_ORDER_EVENT, onOpen);
+    return () => window.removeEventListener(OPEN_FOOD_ORDER_EVENT, onOpen);
+  }, []);
+
   const count = cartCount(lines);
   const total = cartTotal(lines);
   const showConfirmation = lines.length === 0 && lastOrder !== null;
@@ -203,7 +210,7 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
         type="button"
         onClick={() => setOpen(true)}
         aria-label={showConfirmation ? `View food order ${lastOrder.code}` : `View food order: ${count} item${count === 1 ? "" : "s"}, ${formatNaira(total)}`}
-        className="fixed bottom-20 left-3 right-20 z-40 flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-deep px-5 text-hero-foreground shadow-2xl md:bottom-6 md:left-auto md:right-24 md:w-96"
+        className="fixed bottom-20 left-3 right-20 z-40 flex min-h-14 items-center justify-between gap-3 rounded-2xl bg-deep px-5 text-hero-foreground shadow-2xl md:bottom-6 md:left-auto md:right-24 md:w-96 lg:hidden"
       >
         {showConfirmation ? (
           <>

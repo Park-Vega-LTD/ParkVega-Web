@@ -345,14 +345,14 @@ export function SiteFooter() {
           </address>
         </div>
       </div>
-      <div className="mx-auto mt-12 flex max-w-7xl flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+      <div className="mx-auto mt-12 flex max-w-7xl flex-col items-center gap-5 text-center">
         <p className="shrink-0 font-sans text-sm font-bold uppercase tracking-[0.18em] text-hero-foreground/70">Proud members of</p>
-        <ul className="flex flex-wrap items-center gap-8">
+        <ul className="flex flex-wrap items-center justify-center gap-4">
           {MEMBERSHIPS.map((member) => (
             <li key={member.name}>
-              <a href={member.url} target="_blank" rel="noopener noreferrer" className="block transition-opacity hover:opacity-80">
+              <a href={member.url} target="_blank" rel="noopener noreferrer" className="block rounded-2xl bg-white px-5 py-3 transition-transform hover:-translate-y-0.5">
                 {member.logo
-                  ? <Image src={member.logo.src} alt={member.name} width={member.logo.width} height={member.logo.height} className="h-12 w-auto brightness-0 invert" />
+                  ? <Image src={member.logo.src} alt={member.name} width={member.logo.width} height={member.logo.height} className="h-11 w-auto" />
                   : <span className="block rounded-lg border border-deep/15 px-4 py-2 font-display text-lg font-bold text-primary-ink">{member.name}</span>}
               </a>
             </li>

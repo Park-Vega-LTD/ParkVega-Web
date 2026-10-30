@@ -94,6 +94,13 @@ export const cart = {
   },
 };
 
+/** Window event FoodOrderSheet listens for, so other parts of the page can open checkout. */
+export const OPEN_FOOD_ORDER_EVENT = "pv:open-food-order";
+
+export function openFoodOrder() {
+  window.dispatchEvent(new Event(OPEN_FOOD_ORDER_EVENT));
+}
+
 export function cartTotal(lines: CartLine[]) {
   return lines.reduce((sum, line) => sum + line.price * line.quantity, 0);
 }

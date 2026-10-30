@@ -141,6 +141,8 @@ export interface Restaurant {
   location: string | null
   opening_hours: string | null
   dietary_info: string | null
+  /** Cover photo for the restaurant, usually on res.cloudinary.com. */
+  image_url?: string | null
   active: boolean
 }
 
