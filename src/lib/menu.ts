@@ -20,9 +20,10 @@ export function menuDescription(item: Pick<MenuItem, "description" | "includes">
   return item.description;
 }
 
-/** Hosts next.config's images.remotePatterns allows; anything else is skipped. */
+/** Local photos under public/, or hosts next.config's images.remotePatterns allows; anything else is skipped. */
 export function isMenuPhoto(url: string | null): url is string {
   if (!url) return false;
+  if (url.startsWith("/") && !url.startsWith("//")) return true;
   try {
     const { protocol, hostname } = new URL(url);
     return (

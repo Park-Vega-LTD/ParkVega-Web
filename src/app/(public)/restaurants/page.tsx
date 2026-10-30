@@ -6,11 +6,10 @@ import { ArrowDown, Clock3, ShoppingBag, UtensilsCrossed } from "lucide-react";
 import { FaqBlock } from "@/components/parkvega/faq-block";
 import { MenuApp } from "@/components/parkvega/food-order/menu-app";
 import { FoodOrderSheet } from "@/components/parkvega/food-order/order-sheet";
-import { publicFetch } from "@/lib/api.server";
 import { isMenuPhoto } from "@/lib/menu";
+import { getRestaurantMenus } from "@/lib/menu-data";
 import { getExtraOpenDates } from "@/lib/public-data";
 import { cn } from "@/lib/utils";
-import type { MenuItem, Restaurant } from "@/types/api";
 
 // ISR: regenerate the restaurants page at most once every 60 seconds (Requirement 4.1).
 export const revalidate = 60;
@@ -44,32 +43,9 @@ const FALLBACK_PHOTOS = [
   { src: "/restaurant/blue-lime-drink.jpg", alt: "Chilled blue drink in a martini glass garnished with a lime slice" },
 ];
 
-const fetchOpts = { next: { revalidate: 60 } } as const;
-
 export default async function RestaurantsPage() {
-  // Fetch the restaurant list first. A failure degrades to an empty list so
-  // the page still renders (match the attractions/homepage pattern).
-  const restaurants = await publicFetch<Restaurant[]>(
-    "/restaurants",
-    fetchOpts,
-  ).catch(() => [] as Restaurant[]);
-
-  // Show active restaurants on the public page (consistent with attractions
-  // filtering out inactive entries).
-  const activeRestaurants = restaurants.filter(
-    (restaurant) => restaurant.active,
-  );
-
-  // Fetch each restaurant's menu in parallel. A single menu failure degrades
-  // to an empty list so the rest of the page still renders.
-  const menus = await Promise.all(
-    activeRestaurants.map((restaurant) =>
-      publicFetch<MenuItem[]>(
-        `/restaurants/${restaurant.id}/menu`,
-        fetchOpts,
-      ).catch(() => [] as MenuItem[]),
-    ),
-  );
+  const activeRestaurants = await getRestaurantMenus();
+  const menus = activeRestaurants.map((restaurant) => restaurant.menu);
 
   const extraOpenDates = await getExtraOpenDates();
 

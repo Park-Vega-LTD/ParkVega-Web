@@ -26,10 +26,11 @@ import {
   type AttractionHighlight,
   type MenuHighlight,
 } from "@/lib/home-content";
+import { getRestaurantMenus } from "@/lib/menu-data";
 import { getFromPrice, getSiteSettings } from "@/lib/public-data";
 import { eventSchemas, waterParkSchema } from "@/lib/schema";
 import { formatNaira, shortDays } from "@/lib/site";
-import type { Attraction, Event, MenuItem, PageImage, Restaurant } from "@/types/api";
+import type { Attraction, Event, PageImage } from "@/types/api";
 
 // ISR: regenerate the homepage at most once every 60 seconds (Requirement 4.1).
 export const revalidate = 60;
@@ -74,14 +75,9 @@ function toHighlight(attraction: Attraction, index: number): AttractionHighlight
 
 /** Popular items from the first active restaurant's menu. */
 async function getMenuHighlights(): Promise<MenuHighlight[]> {
-  const restaurants = await publicFetch<Restaurant[]>("/restaurants", fetchOpts).catch(
-    () => [] as Restaurant[],
-  );
-  const restaurant = restaurants.find((r) => r.active);
+  const [restaurant] = await getRestaurantMenus();
   if (!restaurant) return [];
-  const menu = await publicFetch<MenuItem[]>(`/restaurants/${restaurant.id}/menu`, fetchOpts).catch(
-    () => [] as MenuItem[],
-  );
+  const menu = restaurant.menu;
   const active = menu.filter((item) => item.active);
   const popular = active.filter((item) => item.popular);
   return (popular.length > 0 ? popular : active).slice(0, 4).map((item) => ({

@@ -1,0 +1,440 @@
+{
+  "restaurants": [
+    {
+      "id": "park-vega-restaurant",
+      "name": "Park Vega Restaurant",
+      "description": "Jollof, burgers, pizza, wings, snacks and cold drinks, served all day.",
+      "category": "Restaurant",
+      "location": null,
+      "opening_hours": "11am – 6pm",
+      "dietary_info": null,
+      "image_url": null,
+      "active": true,
+      "menu": [
+        {
+          "id": "shawarma-soda",
+          "name": "Shawarma + Soda",
+          "description": null,
+          "price": 10900,
+          "category": "Wraps",
+          "popular": false,
+          "badges": [
+            "BIG_APPETITE"
+          ],
+          "includes": [
+            "Shawarma",
+            "Soda"
+          ],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "jollof-rice",
+          "name": "Jollof Rice",
+          "description": null,
+          "price": 4300,
+          "category": "Rice dishes",
+          "popular": true,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "jollof-combo",
+          "name": "Jollof Combo",
+          "description": null,
+          "price": 11300,
+          "category": "Rice dishes",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "Jollof rice",
+            "Chicken",
+            "Coleslaw",
+            "Water"
+          ],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "vega-combo",
+          "name": "Vega Combo",
+          "description": null,
+          "price": 12100,
+          "category": "Rice dishes",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "Vega Special Rice",
+            "Chicken",
+            "Coleslaw",
+            "Water"
+          ],
+          "image_url": "/restaurant/menu/fried-rice-peppered-beef.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "vega-special-rice",
+          "name": "Vega Special Rice",
+          "description": null,
+          "price": 4300,
+          "category": "Rice dishes",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/fried-rice-peppered-beef.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "bacon-wrapped-hot-dogs-soda",
+          "name": "Bacon Wrapped Hot Dogs + Soda",
+          "description": null,
+          "price": 4400,
+          "category": "Hotdogs",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "Bacon wrapped hot dogs",
+            "Soda"
+          ],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "chipotle-chili-hotdogs-4-wings-soda",
+          "name": "Chipotle Chili Hotdogs + 4 Wings + Soda",
+          "description": null,
+          "price": 6500,
+          "category": "Hotdogs",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "Chipotle chili hotdogs",
+            "4 wings",
+            "Soda"
+          ],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "waffle-combo",
+          "name": "Waffle Combo",
+          "description": null,
+          "price": 6500,
+          "category": "Snacks & drinks",
+          "popular": false,
+          "badges": [
+            "KIDS_SPECIAL"
+          ],
+          "includes": [
+            "Waffle",
+            "4 wings",
+            "Nutri Milk"
+          ],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "ice-cream",
+          "name": "Ice Cream",
+          "description": null,
+          "price": 3500,
+          "category": "Snacks & drinks",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "soda",
+          "name": "Soda",
+          "description": null,
+          "price": 1000,
+          "category": "Snacks & drinks",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/cola.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "water",
+          "name": "Water",
+          "description": null,
+          "price": 700,
+          "category": "Snacks & drinks",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "plantain-chips",
+          "name": "Plantain Chips",
+          "description": null,
+          "price": 4000,
+          "category": "Snacks & drinks",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "burger-extravaganza",
+          "name": "Burger Extravaganza",
+          "description": null,
+          "price": 18300,
+          "category": "Burgers",
+          "popular": false,
+          "badges": [
+            "BIG_APPETITE"
+          ],
+          "includes": [
+            "Burger Max",
+            "4 wings",
+            "Chips",
+            "1 soda"
+          ],
+          "image_url": "/restaurant/menu/bacon-cheeseburger.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "burger-max-combo-chips",
+          "name": "Burger Max Combo + Chips",
+          "description": null,
+          "price": 14100,
+          "category": "Burgers",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "Burger Max",
+            "Chips"
+          ],
+          "image_url": "/restaurant/menu/burger-fries.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "burger-max",
+          "name": "Burger Max",
+          "description": null,
+          "price": 10200,
+          "category": "Burgers",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/bacon-cheeseburger.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "mini-burger",
+          "name": "Mini Burger",
+          "description": null,
+          "price": 5700,
+          "category": "Burgers",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/burger-fries.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "pizza-midi",
+          "name": "Pizza Midi",
+          "description": null,
+          "price": 8000,
+          "category": "Pizza",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/skillet-pizza.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "pizza-mini",
+          "name": "Pizza Mini",
+          "description": null,
+          "price": 6800,
+          "category": "Pizza",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/skillet-pizza.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "choco-pizza-soda-4-wings",
+          "name": "Choco Pizza + Soda + 4 Wings",
+          "description": null,
+          "price": 10100,
+          "category": "Pizza",
+          "popular": false,
+          "badges": [
+            "KIDS_SPECIAL"
+          ],
+          "includes": [
+            "Choco pizza",
+            "Soda",
+            "4 wings"
+          ],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "pizza-extravaganza",
+          "name": "Pizza Extravaganza",
+          "description": null,
+          "price": 18100,
+          "category": "Pizza",
+          "popular": false,
+          "badges": [
+            "FAMILY_FAVOURITE"
+          ],
+          "includes": [
+            "Large pizza",
+            "4 wings",
+            "1 soda"
+          ],
+          "image_url": "/restaurant/menu/skillet-pizza.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "chicken-nuggets-chips",
+          "name": "Chicken Nuggets + Chips",
+          "description": null,
+          "price": 13700,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "Chicken nuggets",
+            "Chips"
+          ],
+          "image_url": "/restaurant/menu/chicken-nuggets.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "4-wings-soda",
+          "name": "4 Wings + Soda",
+          "description": null,
+          "price": 7600,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [
+            "4 wings",
+            "Soda"
+          ],
+          "image_url": "/restaurant/menu/glazed-wings.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "6-wings",
+          "name": "6 Wings",
+          "description": null,
+          "price": 8900,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/glazed-wings.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "6-wings-chips",
+          "name": "6 Wings + Chips",
+          "description": null,
+          "price": 11800,
+          "category": "Proteins",
+          "popular": true,
+          "badges": [],
+          "includes": [
+            "6 wings",
+            "Chips"
+          ],
+          "image_url": "/restaurant/menu/glazed-wings.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "grilled-chicken",
+          "name": "Grilled Chicken",
+          "description": null,
+          "price": 6300,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": "/restaurant/menu/bbq-chicken-chips.jpg",
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "grilled-turkey",
+          "name": "Grilled Turkey",
+          "description": null,
+          "price": 8800,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "mini-turkey",
+          "name": "Mini Turkey",
+          "description": null,
+          "price": 4600,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        },
+        {
+          "id": "beef-kebab",
+          "name": "Beef Kebab",
+          "description": null,
+          "price": 4900,
+          "category": "Proteins",
+          "popular": false,
+          "badges": [],
+          "includes": [],
+          "image_url": null,
+          "allergens": [],
+          "active": true
+        }
+      ]
+    }
+  ]
+}
