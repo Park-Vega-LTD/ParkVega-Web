@@ -6,9 +6,10 @@ import { Logo } from "@/components/parkvega/logo";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import { MAPS_URL, TOWN, formatNaira, shortDays, whatsappUrl } from "@/lib/site";
+import { sitePhoto } from "@/lib/site-photos";
 import type { PageImage, SiteSettings } from "@/types/api";
 
-const DEFAULT_HERO_IMAGE = "/photos/slide-tower-tubes.jpg";
+const DEFAULT_HERO_IMAGE = sitePhoto("/photos/aqua-tower-aerial.jpg");
 
 /**
  * Above-the-fold homepage billboard: a photo carousel (with the autoplay
@@ -29,15 +30,15 @@ export function Billboard({
   const builtIn: HeroSlide[] = [
     {
       image: settings.hero_image_url || DEFAULT_HERO_IMAGE,
-      alt: "Smiling guests peek through yellow double tubes in front of Park Vega's colourful slide tower",
+      alt: "Aerial view of Park Vega's colourful slide tower, kids' splash pad and shaded lounging area",
       eyebrow: "Park Vega Waterpark · Agbor",
       headline: "Delivering your kind of fun",
     },
-    { image: "/photos/mat-racer-splash.jpg", alt: "A laughing rider on a blue mat bursts through the spray at the bottom of an orange slide", eyebrow: "Thrill slides", headline: "Twist, drop and splash", position: "50% 20%" },
-    { image: "/photos/racing-slide-friends.jpg", alt: "Two friends cheering as they race each other down side-by-side slide lanes", eyebrow: "Racing slides", headline: "Race your crew to the bottom", position: "50% 12%" },
-    { image: "/photos/wave-pool-tubes.jpg", alt: "Friends raising their arms from yellow rubber rings in the wave pool, with the slide tower behind", eyebrow: "Wave pool", headline: "Float the afternoon away", position: "50% 55%" },
-    { image: "/splash-pad.jpg", alt: "Children cheering under a tipping water bucket in the kids' splash zone", eyebrow: "Kids' splash zone", headline: "Little ones, big splashes" },
-    { image: "/park-food.jpg", alt: "Jollof rice, grilled chicken and fried plantain with fresh fruit drinks by the pool", eyebrow: "Food & drinks", headline: "Refuel without leaving the park" },
+    { image: sitePhoto("/photos/mat-racer-slide.jpg"), alt: "A smiling rider waves as she splashes down an orange slide on a blue mat", eyebrow: "Thrill slides", headline: "Twist, drop and splash", position: "50% 25%" },
+    { image: sitePhoto("/photos/wave-pool-kids-tubes.jpg"), alt: "Kids in life jackets laughing on rubber rings as waves roll through the wave pool", eyebrow: "Wave pool", headline: "Ride the waves together", position: "50% 60%" },
+    { image: sitePhoto("/photos/friends-floating-tubes.jpg"), alt: "Four friends holding hands as they float on yellow rubber rings", eyebrow: "Relax & float", headline: "Float the afternoon away", position: "50% 60%" },
+    { image: sitePhoto("/photos/splash-zone-kids.jpg"), alt: "A girl laughing under the water jets in the kids' splash zone", eyebrow: "Kids' splash zone", headline: "Little ones, big splashes", position: "50% 55%" },
+    { image: sitePhoto("/park-food.jpg"), alt: "Jollof rice, grilled chicken and fried plantain with fresh fruit drinks by the pool", eyebrow: "Food & drinks", headline: "Refuel without leaving the park" },
   ];
   // A chosen photo is framed by the editor, so the built-in crop no longer applies.
   const slides = builtIn.map((slide, index) => {

@@ -6,13 +6,12 @@ import { CalendarClock, Gauge, Ruler, ShieldCheck, Users } from "lucide-react";
 import { SectionHeading } from "@/components/parkvega/page-hero";
 import { ApiError, publicFetch } from "@/lib/api.server";
 import { safetyList } from "@/lib/attractions";
+import { getAttractionFallbackImage } from "@/lib/public-data";
 import type { Attraction } from "@/types/api";
 
 // ISR: regenerate each attraction detail page at most once every 60 seconds
 // (Requirement 4.4).
 export const revalidate = 60;
-
-const FALLBACK_IMAGE = "/photos/slide-tower-tubes.jpg";
 
 const fetchOpts = { next: { revalidate: 60 } } as const;
 
@@ -106,6 +105,7 @@ export default async function AttractionDetailPage({ params }: PageProps) {
     throw err;
   }
 
+  const fallbackImage = await getAttractionFallbackImage();
   const schedules = attraction.schedules ?? [];
   const safety = safetyList(attraction);
 
@@ -114,7 +114,7 @@ export default async function AttractionDetailPage({ params }: PageProps) {
       <section className="px-3 py-3 sm:px-6 sm:py-5">
         <div className="relative mx-auto min-h-[460px] max-w-7xl overflow-hidden rounded-3xl bg-foreground">
           <Image
-            src={attraction.image_url || FALLBACK_IMAGE}
+            src={attraction.image_url || fallbackImage}
             alt={attraction.name}
             fill
             sizes="100vw"

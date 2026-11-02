@@ -6,6 +6,8 @@ import { FaqBlock } from "@/components/parkvega/faq-block";
 import { PackageCards } from "@/components/parkvega/package-cards";
 import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
+import { getSpotPhoto } from "@/lib/public-data";
+import { sitePhoto, type Photo } from "@/lib/site-photos";
 import { SCHOOL_PRICING, SCHOOL_SAFETY, TEACHER_CHECKLIST } from "@/lib/visit-content";
 
 // ISR: regenerate at most once every 60 seconds (Requirement 4.1).
@@ -15,25 +17,37 @@ const TITLE = "School Excursions & Group Trips | Park Vega Waterpark";
 const DESCRIPTION =
   "Plan a safe, fun school excursion to Park Vega Waterpark in Agbor: group pricing for 20+, lifeguards, kids' pools and a teacher checklist. Book on WhatsApp.";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/school-excursions" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: ["/splash-pad.jpg"] },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+const HERO: Photo = {
+  src: sitePhoto("/photos/wave-pool-kids-tubes.jpg"),
+  alt: "Pupils in life jackets on rubber rings in the wave pool, with an adult close by",
 };
+
+/** The `school-excursions/hero` photo staff chose, else the default. */
+const getHero = () => getSpotPhoto("school-excursions", "hero", HERO);
+
+export async function generateMetadata(): Promise<Metadata> {
+  const hero = await getHero();
+  return {
+    title: TITLE,
+    description: DESCRIPTION,
+    alternates: { canonical: "/school-excursions" },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
+    twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  };
+}
 
 const ENQUIRY = "Hi Park Vega! I'd like to book a school excursion";
 
-export default function SchoolExcursionsPage() {
+export default async function SchoolExcursionsPage() {
+  const hero = await getHero();
   return (
     <>
       <PageHero
         eyebrow="School excursions & groups"
         title="A fun, safe day out for pupils."
         description="Zero-depth kids' pools, anti-slip floors, lifeguards and life jackets for non-swimmers, with group pricing for schools, churches and corporates of 20+."
-        image="/splash-pad.jpg"
-        imageAlt="Pupils playing safely in the Park Vega kids' splash zone"
+        image={hero.src}
+        imageAlt={hero.alt}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">

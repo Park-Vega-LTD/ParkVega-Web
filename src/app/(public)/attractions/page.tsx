@@ -4,6 +4,7 @@ import { AttractionsFilter } from "@/components/parkvega/attractions-filter";
 import { FaqBlock } from "@/components/parkvega/faq-block";
 import { SectionHeading } from "@/components/parkvega/page-hero";
 import { publicFetch } from "@/lib/api.server";
+import { getAttractionFallbackImage } from "@/lib/public-data";
 import type { Attraction } from "@/types/api";
 
 // ISR: regenerate the attractions page at most once every 60 seconds (Requirement 4.1).
@@ -34,10 +35,10 @@ const fetchOpts = { next: { revalidate: 60 } } as const;
 export default async function AttractionsPage() {
   // Fetch all attractions. A failure degrades to an empty list so the page
   // still renders (match the homepage pattern).
-  const attractions = await publicFetch<Attraction[]>(
-    "/attractions",
-    fetchOpts,
-  ).catch(() => [] as Attraction[]);
+  const [attractions, fallbackImage] = await Promise.all([
+    publicFetch<Attraction[]>("/attractions", fetchOpts).catch(() => [] as Attraction[]),
+    getAttractionFallbackImage(),
+  ]);
 
   const activeAttractions = attractions.filter(
     (attraction) => attraction.status === "ACTIVE",
@@ -52,7 +53,7 @@ export default async function AttractionsPage() {
           description="Browse the full line-up and filter by the kind of adventure you're after—from heart-racing thrills to gentle family zones."
         />
         <div className="mt-9">
-          <AttractionsFilter attractions={activeAttractions} />
+          <AttractionsFilter attractions={activeAttractions} fallbackImage={fallbackImage} />
         </div>
       </section>
       <FaqBlock extra={[

@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 
 import { MyDayPlanner } from "@/components/parkvega/my-day-planner";
 import { serverFetch } from "@/lib/api.server";
-import { getSiteSettings } from "@/lib/public-data";
+import { getAttractionFallbackImage, getSiteSettings } from "@/lib/public-data";
 import type { Attraction } from "@/types/api";
 
 // Attractions change rarely; cache with 60s ISR (Requirement 10.5). The
@@ -23,11 +23,12 @@ const fetchOpts = { next: { revalidate: 60 } } as const;
 
 export default async function MyDayPage() {
   // A failed fetch degrades to an empty catalogue so the page still renders.
-  const [attractions, settings] = await Promise.all([
+  const [attractions, settings, fallbackImage] = await Promise.all([
     serverFetch<Attraction[]>("/attractions", fetchOpts).catch(
       () => [] as Attraction[],
     ),
     getSiteSettings(),
+    getAttractionFallbackImage(),
   ]);
 
   const activeAttractions = attractions.filter(
@@ -48,6 +49,7 @@ export default async function MyDayPage() {
       <MyDayPlanner
         initialAttractions={activeAttractions}
         extraOpenDates={settings.extra_open_dates}
+        fallbackImage={fallbackImage}
       />
     </section>
   );

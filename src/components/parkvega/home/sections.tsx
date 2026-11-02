@@ -39,6 +39,7 @@ import {
   formatNaira,
   whatsappUrl,
 } from "@/lib/site";
+import { sitePhoto, type Photo } from "@/lib/site-photos";
 
 /** Inline style that staggers a `data-reveal` element by its position in a list. */
 const stagger = (i: number) => ({ "--i": i }) as CSSProperties;
@@ -205,7 +206,20 @@ export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
   );
 }
 
-export function RestaurantSection({ items }: { items: MenuHighlight[] }) {
+/** Default photo for the `home/restaurant` spot. */
+export const RESTAURANT_PHOTO: Photo = {
+  src: sitePhoto("/park-food.jpg"),
+  alt: "Jollof rice, chicken and tropical drinks at Park Vega Restaurant",
+};
+
+export function RestaurantSection({
+  items,
+  photo = RESTAURANT_PHOTO,
+}: {
+  items: MenuHighlight[];
+  /** The `home/restaurant` spot photo. */
+  photo?: Photo;
+}) {
   return (
     <section className="bg-deep py-16 text-hero-foreground sm:py-20">
       <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-[1fr_1.1fr] lg:items-center">
@@ -217,8 +231,8 @@ export function RestaurantSection({ items }: { items: MenuHighlight[] }) {
           </p>
           <div className="relative mt-8 aspect-[4/3] overflow-hidden rounded-3xl">
             <Image
-              src="/park-food.jpg"
-              alt="Jollof rice, chicken and tropical drinks at Park Vega Restaurant"
+              src={photo.src}
+              alt={photo.alt}
               fill
               sizes="(max-width: 1024px) 100vw, 45vw"
               className="object-cover"

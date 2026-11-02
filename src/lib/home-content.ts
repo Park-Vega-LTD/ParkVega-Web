@@ -1,6 +1,7 @@
 import type { FAQ } from "@/types/api";
 
 import { OPEN_DAYS_LONG, OPEN_HOURS, formatNaira } from "@/lib/site";
+import { sitePhoto } from "@/lib/site-photos";
 
 /**
  * Static homepage copy. Each block is the fallback shown when the matching
@@ -20,37 +21,37 @@ export const FALLBACK_ATTRACTIONS: AttractionHighlight[] = [
     name: "Wave Pool",
     description: "Half a million gallons of ocean-style waves across 1,500m² – the heart of the park.",
     tags: ["All ages", "1,500m² pool"],
-    image: "/photos/wave-pool-tubes.jpg",
+    image: sitePhoto("/photos/wave-pool-crowd.jpg"),
   },
   {
     name: "Space Hole Slide",
     description: "Twists, turns and a spin round the jumbo bowl before you splash down.",
     tags: ["Min. 120cm", "High thrill"],
-    image: "/photos/mat-racer-splash.jpg",
+    image: sitePhoto("/photos/aqua-tower-aerial.jpg"),
   },
   {
     name: "Blackhole Combo",
     description: "A steep drop up a near-vertical wall for a moment of weightlessness. Ride it as a pair.",
     tags: ["Min. 120cm", "Double raft"],
-    image: "/photos/slide-tower-tubes.jpg",
+    image: sitePhoto("/photos/tube-slide-pair.png"),
   },
   {
     name: "Freefall Slide",
     description: "An extremely thrilling slide with a moment of weightlessness – a must for adrenaline seekers.",
     tags: ["Min. 120cm", "High thrill"],
-    image: "/photos/racing-slide-friends.jpg",
+    image: sitePhoto("/photos/mat-racer-slide.jpg"),
   },
   {
     name: "Aqua Tower",
     description: "Four gentle slides and 50+ splash features: tipping bucket, bubbler jets and more.",
     tags: ["Kids", "Zero-depth pool"],
-    image: "/splash-pad.jpg",
+    image: sitePhoto("/photos/splash-zone-kids.jpg"),
   },
   {
     name: "Relax Pool",
     description: "A slow, meandering pool with a swim-up bar. Grab a drink and unwind.",
     tags: ["1.2m deep", "Swim-up bar"],
-    image: "/lazy-river.jpg",
+    image: sitePhoto("/photos/pool-guests-ball.jpg"),
   },
 ];
 

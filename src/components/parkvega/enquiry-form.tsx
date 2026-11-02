@@ -33,7 +33,7 @@ type Status =
 const fieldClass = "h-12 rounded-xl bg-background text-base md:text-base";
 
 /**
- * Group booking enquiry form (birthdays, school trips).
+ * Group booking enquiry form (birthdays, school trips, corporate days).
  *
  * Group bookings need a Park Vega account: signed-out visitors see a
  * log-in / sign-up prompt that returns them to the form, and signed-in
@@ -50,7 +50,7 @@ export function EnquiryForm({
   fields,
   submitLabel = "Send enquiry",
 }: {
-  type: "birthday" | "school";
+  type: "birthday" | "school" | "corporate";
   title: string;
   fields: EnquiryField[];
   submitLabel?: string;

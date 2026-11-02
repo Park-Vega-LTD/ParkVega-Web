@@ -8,46 +8,58 @@ import { MenuApp } from "@/components/parkvega/food-order/menu-app";
 import { FoodOrderSheet } from "@/components/parkvega/food-order/order-sheet";
 import { isMenuPhoto } from "@/lib/menu";
 import { getRestaurantMenus } from "@/lib/menu-data";
-import { getExtraOpenDates } from "@/lib/public-data";
+import { getExtraOpenDates, getPageImages, spotPhotos } from "@/lib/public-data";
+import { sitePhoto, type Photo } from "@/lib/site-photos";
 import { cn } from "@/lib/utils";
 
 // ISR: regenerate the restaurants page at most once every 60 seconds (Requirement 4.1).
 export const revalidate = 60;
 
-export const metadata: Metadata = {
-  // Title: 48 chars (<= 60)
-  title: "Restaurants & Menus | Park Vega Waterpark",
-  // Description: 139 chars (<= 160)
-  description:
-    "Browse Park Vega's restaurants and their menus—Nigerian classics, family favourites, cool drinks and quick snacks served across the park.",
-  openGraph: {
-    title: "Restaurants & Menus | Park Vega Waterpark",
-    description:
-      "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
-    type: "website",
-    images: ["/restaurant/bbq-chicken.jpg"],
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Restaurants & Menus | Park Vega Waterpark",
-    description:
-      "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
-    images: ["/restaurant/bbq-chicken.jpg"],
-  },
-};
-
-/** Shown in the header only when the API has fewer than three dish photos. */
-const FALLBACK_PHOTOS = [
-  { src: "/restaurant/bbq-chicken.jpg", alt: "Glazed barbecue chicken quarter served with chunky chips" },
-  { src: "/restaurant/fried-rice.jpg", alt: "Fried rice with sweetcorn, peas and greens, served with spicy beef" },
-  { src: "/restaurant/blue-lime-drink.jpg", alt: "Chilled blue drink in a martini glass garnished with a lime slice" },
+/**
+ * Shown in the header only when the API has fewer than three dish photos.
+ * Staff can swap them under Page images (`restaurants/header`).
+ */
+const FALLBACK_PHOTOS: Photo[] = [
+  { src: sitePhoto("/restaurant/bbq-chicken.jpg"), alt: "Glazed barbecue chicken quarter served with chunky chips" },
+  { src: sitePhoto("/restaurant/fried-rice.jpg"), alt: "Fried rice with sweetcorn, peas and greens, served with spicy beef" },
+  { src: sitePhoto("/restaurant/blue-lime-drink.jpg"), alt: "Chilled blue drink in a martini glass garnished with a lime slice" },
 ];
+
+/** The `restaurants/header` photos staff chose, over the stock shots. */
+async function getHeaderPhotos(): Promise<Photo[]> {
+  return spotPhotos(await getPageImages("restaurants"), "header", FALLBACK_PHOTOS);
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const [shareImage] = await getHeaderPhotos();
+  return {
+    // Title: 48 chars (<= 60)
+    title: "Restaurants & Menus | Park Vega Waterpark",
+    // Description: 139 chars (<= 160)
+    description:
+      "Browse Park Vega's restaurants and their menus—Nigerian classics, family favourites, cool drinks and quick snacks served across the park.",
+    openGraph: {
+      title: "Restaurants & Menus | Park Vega Waterpark",
+      description:
+        "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
+      type: "website",
+      images: [shareImage.src],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: "Restaurants & Menus | Park Vega Waterpark",
+      description:
+        "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
+      images: [shareImage.src],
+    },
+  };
+}
 
 export default async function RestaurantsPage() {
   const activeRestaurants = await getRestaurantMenus();
   const menus = activeRestaurants.map((restaurant) => restaurant.menu);
 
-  const extraOpenDates = await getExtraOpenDates();
+  const [extraOpenDates, fallbackPhotos] = await Promise.all([getExtraOpenDates(), getHeaderPhotos()]);
 
   const menuData = activeRestaurants.map((restaurant, index) => ({ restaurant, items: menus[index] }));
   const allItems = menus.flat();
@@ -57,7 +69,7 @@ export default async function RestaurantsPage() {
       .filter((item) => item.active && isMenuPhoto(item.image_url))
       .sort((a, b) => Number(b.popular) - Number(a.popular))
       .map((item) => ({ src: item.image_url as string, alt: item.name })),
-    ...FALLBACK_PHOTOS,
+    ...fallbackPhotos,
   ]
     .filter((photo, i, all) => all.findIndex((other) => other.src === photo.src) === i)
     .slice(0, 3);

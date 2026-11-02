@@ -6,7 +6,8 @@ import {
   OPEN_DAYS_LONG,
   OPEN_HOURS,
 } from "@/lib/site";
-import type { Event, FAQ, SiteSettings, TicketProduct } from "@/types/api";
+import { ATTRACTION_FALLBACK_IMAGE, type Photo } from "@/lib/site-photos";
+import type { Event, FAQ, PageImage, SiteSettings, TicketProduct } from "@/types/api";
 
 /**
  * Cached public data shared by several pages. Identical `fetch` calls are
@@ -92,6 +93,43 @@ export async function getExtraOpenDates(): Promise<string[]> {
     .filter((event) => event.status === "PUBLISHED" && event.category === "HOLIDAY_OPENING")
     .flatMap((event) => (event.sessions ?? []).map((session) => session.session_date.slice(0, 10)));
   return [...new Set([...settings.extra_open_dates, ...holidayDates])].sort();
+}
+
+/** Every photo staff chose for a page under Page images in the console. */
+export async function getPageImages(pageKey: string): Promise<PageImage[]> {
+  return publicFetch<PageImage[]>(
+    `/content/page-images?page_key=${encodeURIComponent(pageKey)}`,
+    publicFetchOpts,
+  ).catch(() => [] as PageImage[]);
+}
+
+/**
+ * A spot's photos: the slot's chosen photos (in position order) laid over
+ * the built-in defaults one by one. A position staff left empty keeps its
+ * default, and a chosen photo without alt text borrows the default's.
+ */
+export function spotPhotos(images: PageImage[], slot: string, defaults: Photo[]): Photo[] {
+  const chosen = images
+    .filter((image) => image.slot === slot)
+    .sort((a, b) => a.position - b.position);
+  return defaults.map((photo, index) => {
+    const pick = chosen[index];
+    return pick?.url ? { src: pick.url, alt: pick.alt_text || photo.alt } : photo;
+  });
+}
+
+/** A single-photo spot: the chosen photo for `pageKey/slot`, else the fallback. */
+export async function getSpotPhoto(pageKey: string, slot: string, fallback: Photo): Promise<Photo> {
+  return spotPhotos(await getPageImages(pageKey), slot, [fallback])[0];
+}
+
+/** The photo shown for attractions without their own image (`site/attraction-fallback`). */
+export async function getAttractionFallbackImage(): Promise<string> {
+  const photo = await getSpotPhoto("site", "attraction-fallback", {
+    src: ATTRACTION_FALLBACK_IMAGE,
+    alt: "",
+  });
+  return photo.src;
 }
 
 /** Staff-managed FAQs, or the exact-phrasing fallback set when none exist. */

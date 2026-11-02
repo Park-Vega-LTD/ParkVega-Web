@@ -20,7 +20,7 @@ import { ParkRulesList, ProhibitedItemsGrid } from "@/components/parkvega/park-r
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { publicFetch } from "@/lib/api.server";
-import { getFromPrice, getTicketProducts, publicFetchOpts } from "@/lib/public-data";
+import { getFromPrice, getSpotPhoto, getTicketProducts, publicFetchOpts } from "@/lib/public-data";
 import { waterParkSchema } from "@/lib/schema";
 import {
   ADDRESS,
@@ -30,6 +30,7 @@ import {
   formatNaira,
   whatsappUrl,
 } from "@/lib/site";
+import { sitePhoto, type Photo } from "@/lib/site-photos";
 import {
   ACCOMMODATION,
   ADD_ONS,
@@ -47,14 +48,23 @@ const TITLE = "Plan Your Visit | Park Vega Waterpark Prices, Hours & Rules";
 const DESCRIPTION =
   "Park Vega ticket prices, opening hours, what to wear, food policy, safety rules, add-ons and directions to Agbor, Delta State. Everything before you go.";
 
+const HERO: Photo = {
+  src: sitePhoto("/photos/aqua-tower-aerial.jpg"),
+  alt: "Aerial view of the Park Vega slide tower, kids' splash pad and shaded lounging area",
+};
+
+/** The `plan-your-visit/hero` photo staff chose, else the default. */
+const getHero = () => getSpotPhoto("plan-your-visit", "hero", HERO);
+
 // Per Requirement 5.1, every page exports a `generateMetadata()` function
 // returning a unique title (<= 60 chars) and description (<= 160 chars).
-export function generateMetadata(): Metadata {
+export async function generateMetadata(): Promise<Metadata> {
+  const hero = await getHero();
   return {
     title: TITLE,
     description: DESCRIPTION,
     alternates: { canonical: "/plan-your-visit" },
-    openGraph: { title: TITLE, description: DESCRIPTION, type: "website" },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
     twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   };
 }
@@ -116,12 +126,13 @@ export default async function PlanYourVisitPage() {
 
   // Fetch CMS content and ticket products in parallel. A single failure
   // degrades gracefully so the page still renders.
-  const [page, products, fromPrice] = await Promise.all([
+  const [page, products, fromPrice, hero] = await Promise.all([
     publicFetch<ContentPage>("/content/pages/plan-your-visit", publicFetchOpts).catch(
       () => null,
     ),
     getTicketProducts(),
     getFromPrice(),
+    getHero(),
   ]);
 
   const paragraphs = page?.body ? toParagraphs(page.body) : [];
@@ -140,8 +151,8 @@ export default async function PlanYourVisitPage() {
         eyebrow="Before you set out"
         title={page?.title ?? "Plan your visit to Park Vega."}
         description={`Tickets from ${formatNaira(fromPrice)}. Open ${OPEN_DAYS_LONG}, ${OPEN_HOURS}. Here's everything you need for a smooth splash day.`}
-        image="/photos/slide-tower-tubes.jpg"
-        imageAlt="Smiling guests in yellow double tubes in front of the Park Vega slide tower"
+        image={hero.src}
+        imageAlt={hero.alt}
       />
 
       <nav aria-label="On this page" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">

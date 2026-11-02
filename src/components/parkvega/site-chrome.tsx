@@ -11,6 +11,7 @@ import {
   CalendarDays,
   ChevronDown,
   Clock3,
+  ConciergeBell,
   MapPin,
   Menu,
   Route,
@@ -88,7 +89,7 @@ const NAV: NavEntry[] = [
     items: [
       { label: "Birthday parties", to: "/birthday-parties", blurb: "Cabanas, food and party packages", icon: Cake, tone: "coral" },
       { label: "School excursions", to: "/school-excursions", blurb: "Group pricing and safety", icon: School, tone: "sun" },
-      { label: "Corporate & group bookings", to: "/services", blurb: "Cabanas, group hire and services", icon: BriefcaseBusiness, tone: "ocean" },
+      { label: "Corporate & group bookings", to: "/services#corporate", blurb: "Team days, church outings and group hire", icon: BriefcaseBusiness, tone: "ocean" },
       { label: "Events calendar", to: "/events", blurb: "Seasonal events, holiday openings, promos", icon: CalendarDays, tone: "leaf" },
     ],
   },
@@ -96,6 +97,7 @@ const NAV: NavEntry[] = [
   {
     label: "Visitor Information",
     items: [
+      { label: "Guest services", to: "/services", blurb: "Cabanas, dining, safety and visit tools", icon: ConciergeBell, tone: "sun" },
       { label: "Ticket prices & hours", to: "/plan-your-visit#prices", blurb: "Full price list and opening days", icon: Ticket, tone: "leaf" },
       { label: "Directions", to: "/directions-from-benin-asaba-warri-onitsha", blurb: "From Benin, Asaba, Warri and Onitsha", icon: Route, tone: "ocean" },
       { label: "Park rules & safety", to: "/plan-your-visit#safety", blurb: "What to wear and what to leave at home", icon: ShieldCheck, tone: "coral" },
@@ -268,6 +270,7 @@ const footerColumns = [
     links: [
       { label: "Park Rules", to: "/plan-your-visit#safety" },
       { label: "Plan Your Visit", to: "/plan-your-visit" },
+      { label: "Services", to: "/services" },
       { label: "Buy Tickets", to: "/tickets" },
       // No standalone terms page yet; the prohibited-items rules are the closest match.
       { label: "T & C", to: "/plan-your-visit#prohibited" },
@@ -279,6 +282,7 @@ const footerColumns = [
     links: [
       { label: "Birthday Parties", to: "/birthday-parties" },
       { label: "School Excursions", to: "/school-excursions" },
+      { label: "Corporate Bookings", to: "/services#corporate" },
       { label: "Directions", to: "/directions-from-benin-asaba-warri-onitsha" },
     ],
   },

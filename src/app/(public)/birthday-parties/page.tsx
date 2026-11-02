@@ -8,6 +8,8 @@ import { PackageCards } from "@/components/parkvega/package-cards";
 import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
 import { ReviewsGrid } from "@/components/parkvega/reviews-grid";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
+import { getPageImages, spotPhotos } from "@/lib/public-data";
+import { sitePhoto, type Photo } from "@/lib/site-photos";
 import { BIRTHDAY_PACKAGES } from "@/lib/visit-content";
 
 // ISR: regenerate at most once every 60 seconds (Requirement 4.1).
@@ -17,13 +19,30 @@ const TITLE = "Birthday Parties at Park Vega Waterpark, Agbor";
 const DESCRIPTION =
   "Host a birthday party at Park Vega Waterpark in Agbor: private cabanas for 12, food & drinks, group tickets and unlimited rides. Book on WhatsApp.";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/birthday-parties" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: ["/splash-pad.jpg"] },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+const HERO: Photo = {
+  src: sitePhoto("/photos/friends-floating-tubes.jpg"),
+  alt: "A group of friends holding hands as they float together on rubber rings",
 };
+
+/** Staff-chosen `birthday-parties/hero` and `birthday-parties/gallery` photos over the defaults. */
+async function getPhotos() {
+  const images = await getPageImages("birthday-parties");
+  return {
+    hero: spotPhotos(images, "hero", [HERO])[0],
+    gallery: spotPhotos(images, "gallery", PHOTOS),
+  };
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const { hero } = await getPhotos();
+  return {
+    title: TITLE,
+    description: DESCRIPTION,
+    alternates: { canonical: "/birthday-parties" },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
+    twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  };
+}
 
 const ENQUIRY = "Hi Park Vega! I'd like to plan a birthday party";
 
@@ -34,22 +53,23 @@ const INCLUDED = [
   { icon: Cake, title: "Planned with you", text: "Our team plans the details with you on WhatsApp before the big day." },
 ];
 
-const PHOTOS = [
-  { src: "/splash-pad.jpg", alt: "Children playing in the Park Vega splash zone" },
-  { src: "/photos/wave-pool-tubes.jpg", alt: "Friends cheering from rubber rings in the Park Vega wave pool" },
-  { src: "/park-food.jpg", alt: "Party food from Park Vega Restaurant" },
-  { src: "/photos/racing-slide-friends.jpg", alt: "Two friends laughing as they splash down the racing slide" },
+const PHOTOS: Photo[] = [
+  { src: sitePhoto("/photos/family-splash-pad.jpg"), alt: "A mum and three little girls hugging and laughing in the splash zone" },
+  { src: sitePhoto("/photos/splash-zone-kids.jpg"), alt: "A girl laughing under the water jets in the kids' splash zone" },
+  { src: sitePhoto("/park-food.jpg"), alt: "Party food from Park Vega Restaurant" },
+  { src: sitePhoto("/photos/tube-slide-pair.png"), alt: "Two friends sharing a double tube down the blue and yellow slide" },
 ];
 
-export default function BirthdayPartiesPage() {
+export default async function BirthdayPartiesPage() {
+  const { hero, gallery } = await getPhotos();
   return (
     <>
       <PageHero
         eyebrow="Birthday parties"
         title="Turn a birthday into a splash day."
         description="Book a private cabana, add food and drinks, and let the party loose on every slide. We'll plan it all with you on WhatsApp."
-        image="/splash-pad.jpg"
-        imageAlt="Children celebrating in the Park Vega splash zone"
+        image={hero.src}
+        imageAlt={hero.alt}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
@@ -82,7 +102,7 @@ export default function BirthdayPartiesPage() {
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6" aria-label="Party photos">
         <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-          {PHOTOS.map(({ src, alt }) => (
+          {gallery.map(({ src, alt }) => (
             <div key={src} className="relative aspect-square overflow-hidden rounded-3xl">
               <Image src={src} alt={alt} fill sizes="(max-width: 768px) 50vw, 25vw" className="object-cover" />
             </div>

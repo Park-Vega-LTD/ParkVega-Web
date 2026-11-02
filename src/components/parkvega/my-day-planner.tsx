@@ -17,9 +17,8 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { ATTRACTION_FALLBACK_IMAGE } from "@/lib/site-photos";
 import type { Attraction, ItineraryItem, VisitorPlan } from "@/types/api";
-
-const FALLBACK_IMAGE = "/photos/slide-tower-tubes.jpg";
 
 /** The park opens at 11:00; stops are spaced 30 minutes apart, last at 17:30. */
 const FIRST_SLOT_MINUTES = 11 * 60;
@@ -77,9 +76,12 @@ function attractionIds(items: ItineraryItem[]): string[] {
 export function MyDayPlanner({
   initialAttractions,
   extraOpenDates = [],
+  fallbackImage = ATTRACTION_FALLBACK_IMAGE,
 }: {
   initialAttractions: Attraction[];
   extraOpenDates?: string[];
+  /** The `site/attraction-fallback` photo, shown for attractions without one. */
+  fallbackImage?: string;
 }) {
   const queryClient = useQueryClient();
   const [visitDate, setVisitDate] = useState(() =>
@@ -228,7 +230,7 @@ export function MyDayPlanner({
                   <Card className="overflow-hidden py-0">
                     <div className="relative aspect-[4/3] w-full">
                       <Image
-                        src={attraction.image_url || FALLBACK_IMAGE}
+                        src={attraction.image_url || fallbackImage}
                         alt={attraction.name}
                         fill
                         sizes="(max-width: 768px) 100vw, 33vw"

@@ -5,7 +5,9 @@ import { FaqBlock } from "@/components/parkvega/faq-block";
 import { PageHero } from "@/components/parkvega/page-hero";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
+import { getSpotPhoto } from "@/lib/public-data";
 import { ADDRESS, MAPS_URL, directionsUrl } from "@/lib/site";
+import { sitePhoto, type Photo } from "@/lib/site-photos";
 import { CITY_DIRECTIONS } from "@/lib/visit-content";
 
 // ISR: regenerate at most once every 60 seconds (Requirement 4.1).
@@ -15,13 +17,24 @@ const TITLE = "Directions to Park Vega from Benin, Asaba, Warri & Onitsha";
 const DESCRIPTION =
   "How to get to Park Vega Waterpark in Agbor from Benin City, Asaba, Warri and Onitsha: driving routes, travel times, landmarks, buses and maps.";
 
-export const metadata: Metadata = {
-  title: TITLE,
-  description: DESCRIPTION,
-  alternates: { canonical: "/directions-from-benin-asaba-warri-onitsha" },
-  openGraph: { title: TITLE, description: DESCRIPTION, type: "website" },
-  twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+const HERO: Photo = {
+  src: sitePhoto("/photos/wave-pool-crowd.jpg"),
+  alt: "Guests floating on rubber rings in the Park Vega wave pool",
 };
+
+/** The `directions/hero` photo staff chose, else the default. */
+const getHero = () => getSpotPhoto("directions", "hero", HERO);
+
+export async function generateMetadata(): Promise<Metadata> {
+  const hero = await getHero();
+  return {
+    title: TITLE,
+    description: DESCRIPTION,
+    alternates: { canonical: "/directions-from-benin-asaba-warri-onitsha" },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
+    twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
+  };
+}
 
 const DESTINATION = "Park Vega Waterpark, Agbor, Delta State";
 
@@ -30,15 +43,16 @@ function embedUrl(origin: string) {
   return `https://maps.google.com/maps?saddr=${encodeURIComponent(origin)}&daddr=${encodeURIComponent(DESTINATION)}&output=embed`;
 }
 
-export default function DirectionsPage() {
+export default async function DirectionsPage() {
+  const hero = await getHero();
   return (
     <>
       <PageHero
         eyebrow="Getting here"
         title="Directions to Park Vega."
         description={`${ADDRESS}. Easy to reach from Benin City, Asaba, Warri and Onitsha.`}
-        image="/lazy-river.jpg"
-        imageAlt="The relaxing pool at Park Vega Waterpark"
+        image={hero.src}
+        imageAlt={hero.alt}
         ticketCta
       />
 

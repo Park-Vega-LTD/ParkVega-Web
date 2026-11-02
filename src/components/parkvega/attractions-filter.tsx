@@ -4,13 +4,21 @@ import { useState } from "react";
 
 import { AttractionCard } from "@/components/parkvega/attraction-card";
 import { Button } from "@/components/ui/button";
+import { ATTRACTION_FALLBACK_IMAGE } from "@/lib/site-photos";
 import type { Attraction } from "@/types/api";
 
 const CATEGORIES = ["All", "Thrill", "Family", "Kids", "Relax"] as const;
 
 type Category = (typeof CATEGORIES)[number];
 
-export function AttractionsFilter({ attractions }: { attractions: Attraction[] }) {
+export function AttractionsFilter({
+  attractions,
+  fallbackImage = ATTRACTION_FALLBACK_IMAGE,
+}: {
+  attractions: Attraction[];
+  /** Shown for attractions without their own photo. */
+  fallbackImage?: string;
+}) {
   const [selected, setSelected] = useState<Category>("All");
 
   const visible =
@@ -38,7 +46,7 @@ export function AttractionsFilter({ attractions }: { attractions: Attraction[] }
       {visible.length > 0 ? (
         <div className="mt-9 grid gap-5 md:grid-cols-3">
           {visible.map((attraction) => (
-            <AttractionCard key={attraction.id} attraction={attraction} />
+            <AttractionCard key={attraction.id} attraction={attraction} fallbackImage={fallbackImage} />
           ))}
         </div>
       ) : (

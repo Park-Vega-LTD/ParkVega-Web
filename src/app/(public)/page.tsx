@@ -10,6 +10,7 @@ import {
   FinalCta,
   GettingHereSection,
   PlanYourVisitSection,
+  RESTAURANT_PHOTO,
   RestaurantSection,
   ReviewsSection,
   VisitorInfoCards,
@@ -27,10 +28,17 @@ import {
   type MenuHighlight,
 } from "@/lib/home-content";
 import { getRestaurantMenus } from "@/lib/menu-data";
-import { getFromPrice, getSiteSettings } from "@/lib/public-data";
+import {
+  getAttractionFallbackImage,
+  getFromPrice,
+  getPageImages,
+  getSiteSettings,
+  spotPhotos,
+} from "@/lib/public-data";
 import { eventSchemas, waterParkSchema } from "@/lib/schema";
 import { formatNaira, shortDays } from "@/lib/site";
-import type { Attraction, Event, PageImage } from "@/types/api";
+import { sitePhoto } from "@/lib/site-photos";
+import type { Attraction, Event } from "@/types/api";
 
 // ISR: regenerate the homepage at most once every 60 seconds (Requirement 4.1).
 export const revalidate = 60;
@@ -46,7 +54,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: "/" },
-    openGraph: { title, description, type: "website", images: [settings.hero_image_url ?? "/photos/slide-tower-tubes.jpg"] },
+    openGraph: { title, description, type: "website", images: [settings.hero_image_url ?? sitePhoto("/photos/aqua-tower-aerial.jpg")] },
     twitter: { card: "summary_large_image", title, description },
   };
 }
@@ -58,7 +66,7 @@ function hasUpcomingSession(event: Event, todayStr: string): boolean {
   return (event.sessions ?? []).some((s) => s.session_date >= todayStr);
 }
 
-function toHighlight(attraction: Attraction, index: number): AttractionHighlight {
+function toHighlight(attraction: Attraction, fallbackImage: string): AttractionHighlight {
   const tags = [
     attraction.height_requirement ? `Min. ${attraction.height_requirement}` : undefined,
     attraction.thrill_level ? `${attraction.thrill_level} thrill` : attraction.category,
@@ -67,9 +75,7 @@ function toHighlight(attraction: Attraction, index: number): AttractionHighlight
     name: attraction.name,
     description: attraction.description ?? "",
     tags,
-    image:
-      attraction.image_url ||
-      FALLBACK_ATTRACTIONS[index % FALLBACK_ATTRACTIONS.length].image,
+    image: attraction.image_url || fallbackImage,
   };
 }
 
@@ -93,25 +99,27 @@ export default async function HomePage() {
 
   // Fetch homepage data in parallel. Any single failure degrades to the
   // static fallback so the page still renders every section.
-  const [attractions, events, fromPrice, menuHighlights, settings, homeImages] = await Promise.all([
+  const [attractions, events, fromPrice, menuHighlights, settings, homeImages, attractionFallback] = await Promise.all([
     publicFetch<Attraction[]>("/attractions", fetchOpts).catch(() => [] as Attraction[]),
     publicFetch<Event[]>("/events", fetchOpts).catch(() => [] as Event[]),
     getFromPrice(),
     getMenuHighlights(),
     getSiteSettings(),
-    publicFetch<PageImage[]>("/content/page-images?page_key=home", fetchOpts).catch(() => [] as PageImage[]),
+    getPageImages("home"),
+    getAttractionFallbackImage(),
   ]);
   // Staff pick these under Page images in the console; none keeps the built-in photos.
   const heroImages = homeImages
     .filter((image) => image.slot === "hero")
     .sort((a, b) => a.position - b.position);
+  const [restaurantPhoto] = spotPhotos(homeImages, "restaurant", [RESTAURANT_PHOTO]);
 
   const activeAttractions = attractions
     .filter((attraction) => attraction.status === "ACTIVE")
     .sort((a, b) => a.sort_order - b.sort_order);
   const attractionHighlights =
     activeAttractions.length > 0
-      ? activeAttractions.slice(0, 6).map(toHighlight)
+      ? activeAttractions.slice(0, 6).map((attraction) => toHighlight(attraction, attractionFallback))
       : FALLBACK_ATTRACTIONS;
 
   const upcomingEvents = events
@@ -130,7 +138,10 @@ export default async function HomePage() {
       <AttractionsSection items={attractionHighlights} />
       <VisitorInfoCards fromPrice={fromPrice} />
       <PlanYourVisitSection fromPrice={fromPrice} />
-      <RestaurantSection items={menuHighlights.length > 0 ? menuHighlights : FALLBACK_MENU} />
+      <RestaurantSection
+        items={menuHighlights.length > 0 ? menuHighlights : FALLBACK_MENU}
+        photo={restaurantPhoto}
+      />
 
       {upcomingEvents.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
