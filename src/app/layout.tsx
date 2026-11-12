@@ -22,11 +22,11 @@ const nunitoSans = Nunito_Sans({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "Park Vega Waterpark – Agbor, Delta State | Tickets from ₦15,000",
+    default: "Park Vega Waterpark – Agbor, Delta State | Tickets from ₦20,000",
     template: "%s",
   },
   description:
-    "Park Vega Waterpark in Agbor, Delta State: wave pool, thrill slides and kids' splash zones. Open Thu–Sun & public holidays. Tickets from ₦15,000.",
+    "Park Vega Waterpark in Agbor, Delta State: wave pool, thrill slides and kids' splash zones. Open Thu–Sun & public holidays. Tickets from ₦20,000.",
   applicationName: "Park Vega Waterpark",
   openGraph: { siteName: "Park Vega Waterpark", locale: "en_NG", type: "website" },
 };

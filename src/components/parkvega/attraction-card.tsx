@@ -3,17 +3,17 @@ import Link from "next/link";
 import { Gauge, Ruler, ShieldCheck, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { ATTRACTION_FALLBACK_IMAGE } from "@/lib/site-photos";
 import type { Attraction } from "@/types/api";
 
 export function AttractionCard({
   attraction,
-  fallbackImage = ATTRACTION_FALLBACK_IMAGE,
+  fallbackImage = null,
 }: {
   attraction: Attraction;
-  /** The `site/attraction-fallback` photo, shown when the attraction has none. */
-  fallbackImage?: string;
+  /** The `site/attraction-fallback` photo staff chose, shown when the attraction has none. */
+  fallbackImage?: string | null;
 }) {
+  const image = attraction.image_url || fallbackImage;
   const badge = attraction.thrill_level ? `${attraction.thrill_level} thrill` : attraction.category;
   const details = [
     attraction.who_it_suits ? `Suits: ${attraction.who_it_suits}` : null,
@@ -25,14 +25,16 @@ export function AttractionCard({
 
   return (
     <article data-reveal className="card-lift overflow-hidden rounded-3xl border border-border bg-card">
-      <div className="relative aspect-[4/3] w-full">
-        <Image
-          src={attraction.image_url || fallbackImage}
-          alt={attraction.name}
-          fill
-          sizes="(max-width: 768px) 100vw, 33vw"
-          className="object-cover"
-        />
+      <div className="relative aspect-[4/3] w-full bg-ocean-soft">
+        {image && (
+          <Image
+            src={image}
+            alt={attraction.name}
+            fill
+            sizes="(max-width: 768px) 100vw, 33vw"
+            className="object-cover"
+          />
+        )}
       </div>
       <div className="p-6">
         <span className="text-xs font-extrabold uppercase text-primary-ink">{badge}</span>

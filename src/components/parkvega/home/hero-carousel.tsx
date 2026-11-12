@@ -8,7 +8,7 @@ import { HeroVideo } from "@/components/parkvega/home/hero-video";
 import { cn } from "@/lib/utils";
 
 /** `position` is a CSS object-position for photos whose subject sits off-centre (e.g. "50% 25%"). */
-export type HeroSlide = { image: string; alt: string; eyebrow: string; headline: string; position?: string };
+export type HeroSlide = { image?: string; alt: string; eyebrow: string; headline: string; position?: string };
 
 const INTERVAL_MS = 6500;
 
@@ -78,13 +78,13 @@ export function HeroCarousel({
     >
       {slides.map((item, i) => (
         <div
-          key={item.image}
+          key={item.headline}
           data-hero-slide
           data-active={changed && i === index ? "" : undefined}
           aria-hidden={i !== index}
           className={cn("absolute inset-0 -z-20 overflow-hidden transition-opacity duration-1000 ease-out", i === index ? "opacity-100" : "opacity-0")}
         >
-          <Image src={item.image} alt={item.alt} fill preload={i === 0} sizes="100vw" className="object-cover" style={item.position ? { objectPosition: item.position } : undefined} />
+          {item.image && <Image src={item.image} alt={item.alt} fill preload={i === 0} sizes="100vw" className="object-cover" style={item.position ? { objectPosition: item.position } : undefined} />}
           {i === 0 && videoUrl && <HeroVideo src={videoUrl} />}
         </div>
       ))}
@@ -113,7 +113,7 @@ export function HeroCarousel({
                 <div className="flex items-center gap-1.5 px-1">
                   {slides.map((item, i) => (
                     <button
-                      key={item.image}
+                      key={item.headline}
                       type="button"
                       onClick={() => show(i)}
                       aria-label={`Slide ${i + 1} of ${count}: ${item.eyebrow}`}

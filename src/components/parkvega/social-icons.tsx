@@ -12,6 +12,10 @@ export function FacebookIcon({ className }: { className?: string }) {
   return <svg viewBox="0 0 24 24" aria-hidden="true" className={className}><circle cx="12" cy="12" r="11" fill="#1877F2" /><path d="M13.4 23v-7.7h2.6l.4-3h-3V10.4c0-.9.3-1.5 1.5-1.5h1.6V6.2a21 21 0 0 0-2.3-.1c-2.3 0-3.9 1.4-3.9 4v2.2H7.7v3h2.6V23z" fill="#fff" /></svg>;
 }
 
+export function TikTokIcon({ className }: { className?: string }) {
+  return <svg viewBox="0 0 24 24" aria-hidden="true" className={className}><circle cx="12" cy="12" r="11" fill="#000" /><path d="M13.2 5.5h2.3c.2 1.6 1.2 2.7 2.8 2.9v2.3a5.3 5.3 0 0 1-2.8-.9v4.5a4 4 0 1 1-4-4h.4v2.4h-.4a1.6 1.6 0 1 0 1.7 1.6z" fill="#fff" /></svg>;
+}
+
 export function XLogoIcon({ className }: { className?: string }) {
   return <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" className={className}><path d="M17.75 2.5h3.07l-6.71 7.67 7.9 10.33h-6.18l-4.84-6.33-5.54 6.33H2.38l7.18-8.2L2 2.5h6.34l4.37 5.78zm-1.08 16.18h1.7L7.4 4.23H5.58z" /></svg>;
 }

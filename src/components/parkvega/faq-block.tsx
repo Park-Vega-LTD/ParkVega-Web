@@ -5,35 +5,32 @@ import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { getFaqs } from "@/lib/public-data";
 import { faqPageSchema } from "@/lib/schema";
 import { cn } from "@/lib/utils";
-import type { FAQ } from "@/types/api";
-
-export type FaqPair = [question: string, answer: string];
+import type { FaqPage } from "@/types/api";
 
 /**
  * The mini FAQ block that appears on every major page (brief §4), with its
- * FAQPage schema. Page-specific questions come first, followed by the shared
- * staff-managed FAQs, de-duplicated and capped so the block stays short.
+ * FAQPage schema. Staff manage the questions in the admin console (FAQs):
+ * the page's own questions come first, then the "every page" ones,
+ * de-duplicated and capped so the block stays short.
  */
 export async function FaqBlock({
-  extra = [],
+  page,
   limit = 8,
   title = "Frequently asked questions.",
   className,
 }: {
-  extra?: FaqPair[];
+  /** Which page's own questions to show; omit for the "every page" set only. */
+  page?: Exclude<FaqPage, "all">;
   limit?: number;
   title?: string;
   className?: string;
 }) {
-  const shared = await getFaqs();
-  const specific: FAQ[] = extra.map(([question, answer], index) => ({
-    id: `page-faq-${index}`,
-    question,
-    answer,
-    sort_order: index,
-  }));
+  const all = await getFaqs();
   const seen = new Set<string>();
-  const faqs = [...specific, ...shared]
+  const faqs = [
+    ...all.filter((faq) => page !== undefined && faq.page === page),
+    ...all.filter((faq) => faq.page === "all"),
+  ]
     .filter((faq) => {
       const key = faq.question.trim().toLowerCase();
       if (seen.has(key)) return false;

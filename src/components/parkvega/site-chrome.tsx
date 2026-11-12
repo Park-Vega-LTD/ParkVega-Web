@@ -24,7 +24,7 @@ import {
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/parkvega/logo";
-import { FacebookIcon, InstagramIcon, XLogoIcon, YouTubeIcon } from "@/components/parkvega/social-icons";
+import { FacebookIcon, InstagramIcon, TikTokIcon, XLogoIcon, YouTubeIcon } from "@/components/parkvega/social-icons";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import {
@@ -288,7 +288,7 @@ const footerColumns = [
   },
 ] as const;
 
-const SOCIAL_ICONS = { youtube: YouTubeIcon, instagram: InstagramIcon, facebook: FacebookIcon, x: XLogoIcon } as const;
+const SOCIAL_ICONS = { youtube: YouTubeIcon, instagram: InstagramIcon, facebook: FacebookIcon, tiktok: TikTokIcon, x: XLogoIcon } as const;
 
 const footerLinkClass = "w-fit font-medium text-hero-foreground transition-colors hover:text-primary";
 const footerHeadingClass = "font-sans text-sm font-bold uppercase tracking-[0.18em] text-coral";

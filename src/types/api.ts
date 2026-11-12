@@ -192,11 +192,27 @@ export interface ItineraryItem {
   note: string | null
 }
 
+/** Website page a FAQ belongs to; "all" shows on every page after its own. */
+export type FaqPage =
+  | "all"
+  | "home"
+  | "attractions"
+  | "plan-your-visit"
+  | "restaurants"
+  | "events"
+  | "birthday-parties"
+  | "school-excursions"
+  | "services"
+  | "directions"
+  | "tickets"
+
+/** GET /content/faqs: active FAQs in display order. */
 export interface FAQ {
   id: string
+  page: FaqPage
   question: string
   answer: string
-  sort_order: number
+  display_position: number
 }
 
 /** GET /content/page-images?page_key=…: a photo in a named spot on a page, e.g. home/hero. */

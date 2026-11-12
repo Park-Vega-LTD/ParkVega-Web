@@ -10,7 +10,6 @@ import {
   FinalCta,
   GettingHereSection,
   PlanYourVisitSection,
-  RESTAURANT_PHOTO,
   RestaurantSection,
   ReviewsSection,
   VisitorInfoCards,
@@ -37,7 +36,6 @@ import {
 } from "@/lib/public-data";
 import { eventSchemas, waterParkSchema } from "@/lib/schema";
 import { formatNaira, shortDays } from "@/lib/site";
-import { sitePhoto } from "@/lib/site-photos";
 import type { Attraction, Event } from "@/types/api";
 
 // ISR: regenerate the homepage at most once every 60 seconds (Requirement 4.1).
@@ -54,7 +52,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title,
     description,
     alternates: { canonical: "/" },
-    openGraph: { title, description, type: "website", images: [settings.hero_image_url ?? sitePhoto("/photos/aqua-tower-aerial.jpg")] },
+    openGraph: { title, description, type: "website", images: settings.hero_image_url ? [settings.hero_image_url] : undefined },
     twitter: { card: "summary_large_image", title, description },
   };
 }
@@ -66,7 +64,7 @@ function hasUpcomingSession(event: Event, todayStr: string): boolean {
   return (event.sessions ?? []).some((s) => s.session_date >= todayStr);
 }
 
-function toHighlight(attraction: Attraction, fallbackImage: string): AttractionHighlight {
+function toHighlight(attraction: Attraction, fallbackImage: string | null): AttractionHighlight {
   const tags = [
     attraction.height_requirement ? `Min. ${attraction.height_requirement}` : undefined,
     attraction.thrill_level ? `${attraction.thrill_level} thrill` : attraction.category,
@@ -75,7 +73,7 @@ function toHighlight(attraction: Attraction, fallbackImage: string): AttractionH
     name: attraction.name,
     description: attraction.description ?? "",
     tags,
-    image: attraction.image_url || fallbackImage,
+    image: attraction.image_url || fallbackImage || undefined,
   };
 }
 
@@ -108,11 +106,11 @@ export default async function HomePage() {
     getPageImages("home"),
     getAttractionFallbackImage(),
   ]);
-  // Staff pick these under Page images in the console; none keeps the built-in photos.
+  // Staff pick these under Page images in the console; a spot left empty shows no photo.
   const heroImages = homeImages
     .filter((image) => image.slot === "hero")
     .sort((a, b) => a.position - b.position);
-  const [restaurantPhoto] = spotPhotos(homeImages, "restaurant", [RESTAURANT_PHOTO]);
+  const [restaurantPhoto = null] = spotPhotos(homeImages, "restaurant");
 
   const activeAttractions = attractions
     .filter((attraction) => attraction.status === "ACTIVE")
@@ -168,7 +166,7 @@ export default async function HomePage() {
       <CelebrateSection />
       <GettingHereSection />
       <ReviewsSection />
-      <FaqBlock />
+      <FaqBlock page="home" limit={10} />
       <FinalCta fromPrice={fromPrice} />
     </>
   );

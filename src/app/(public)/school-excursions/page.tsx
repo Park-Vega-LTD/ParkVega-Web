@@ -7,7 +7,6 @@ import { PackageCards } from "@/components/parkvega/package-cards";
 import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { getSpotPhoto } from "@/lib/public-data";
-import { sitePhoto, type Photo } from "@/lib/site-photos";
 import { SCHOOL_PRICING, SCHOOL_SAFETY, TEACHER_CHECKLIST } from "@/lib/visit-content";
 
 // ISR: regenerate at most once every 60 seconds (Requirement 4.1).
@@ -17,13 +16,8 @@ const TITLE = "School Excursions & Group Trips | Park Vega Waterpark";
 const DESCRIPTION =
   "Plan a safe, fun school excursion to Park Vega Waterpark in Agbor: group pricing for 20+, lifeguards, kids' pools and a teacher checklist. Book on WhatsApp.";
 
-const HERO: Photo = {
-  src: sitePhoto("/photos/wave-pool-kids-tubes.jpg"),
-  alt: "Pupils in life jackets on rubber rings in the wave pool, with an adult close by",
-};
-
-/** The `school-excursions/hero` photo staff chose, else the default. */
-const getHero = () => getSpotPhoto("school-excursions", "hero", HERO);
+/** The `school-excursions/hero` photo staff chose, or null when none is set. */
+const getHero = () => getSpotPhoto("school-excursions", "hero");
 
 export async function generateMetadata(): Promise<Metadata> {
   const hero = await getHero();
@@ -31,7 +25,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: TITLE,
     description: DESCRIPTION,
     alternates: { canonical: "/school-excursions" },
-    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: hero ? [hero.src] : undefined },
     twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   };
 }
@@ -46,8 +40,8 @@ export default async function SchoolExcursionsPage() {
         eyebrow="School excursions & groups"
         title="A fun, safe day out for pupils."
         description="Zero-depth kids' pools, anti-slip floors, lifeguards and life jackets for non-swimmers, with group pricing for schools, churches and corporates of 20+."
-        image={hero.src}
-        imageAlt={hero.alt}
+        image={hero?.src}
+        imageAlt={hero?.alt}
       />
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
@@ -132,20 +126,7 @@ export default async function SchoolExcursionsPage() {
       <FaqBlock
         title="School trip questions."
         limit={7}
-        extra={[
-          [
-            "Does Park Vega give group discounts for schools?",
-            "Yes. Schools, churches, corporates and any group above 20 get group pricing. Send your group size and date and we'll reply with a quote.",
-          ],
-          [
-            "Is Park Vega safe for school children?",
-            "Yes. There are lifeguards on duty, zero-depth kids' pools, anti-slip floors, life jackets for non-swimmers and staff guidance at every slide.",
-          ],
-          [
-            "How many teachers should come on a school trip?",
-            "We recommend at least one supervising adult for every 10 pupils, and children under 150cm must be with an adult.",
-          ],
-        ]}
+        page="school-excursions"
       />
     </>
   );

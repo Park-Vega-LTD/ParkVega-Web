@@ -1,12 +1,12 @@
 import { publicFetch } from "@/lib/api.server";
-import { fallbackFaqs } from "@/lib/home-content";
+import { fallbackFaqs } from "@/lib/faq-fallback";
 import {
   EXTRA_OPEN_DATES,
   FALLBACK_TICKET_PRICE,
   OPEN_DAYS_LONG,
   OPEN_HOURS,
 } from "@/lib/site";
-import { ATTRACTION_FALLBACK_IMAGE, type Photo } from "@/lib/site-photos";
+import type { Photo } from "@/lib/site-photos";
 import type { Event, FAQ, PageImage, SiteSettings, TicketProduct } from "@/types/api";
 
 /**
@@ -73,7 +73,7 @@ export function mergeSettings(saved: Partial<SiteSettings>): SiteSettings {
   return merged;
 }
 
-/** The "Tickets from" price: staff override, else the lowest adult price, else ₦15,000. */
+/** The "Tickets from" price: staff override, else the lowest adult price, else ₦20,000. */
 export async function getFromPrice(): Promise<number> {
   const [settings, products] = await Promise.all([getSiteSettings(), getTicketProducts()]);
   return settings.ticket_price_from ?? lowestAdultPrice(products) ?? FALLBACK_TICKET_PRICE;
@@ -104,41 +104,32 @@ export async function getPageImages(pageKey: string): Promise<PageImage[]> {
 }
 
 /**
- * A spot's photos: the slot's chosen photos (in position order) laid over
- * the built-in defaults one by one. A position staff left empty keeps its
- * default, and a chosen photo without alt text borrows the default's.
+ * A spot's photos: only the ones staff chose for the slot, in position order.
+ * Nothing is built in, so a spot with no chosen photos gets none.
  */
-export function spotPhotos(images: PageImage[], slot: string, defaults: Photo[]): Photo[] {
-  const chosen = images
-    .filter((image) => image.slot === slot)
-    .sort((a, b) => a.position - b.position);
-  return defaults.map((photo, index) => {
-    const pick = chosen[index];
-    return pick?.url ? { src: pick.url, alt: pick.alt_text || photo.alt } : photo;
-  });
+export function spotPhotos(images: PageImage[], slot: string): Photo[] {
+  return images
+    .filter((image) => image.slot === slot && image.url)
+    .sort((a, b) => a.position - b.position)
+    .map((image) => ({ src: image.url, alt: image.alt_text || "" }));
 }
 
-/** A single-photo spot: the chosen photo for `pageKey/slot`, else the fallback. */
-export async function getSpotPhoto(pageKey: string, slot: string, fallback: Photo): Promise<Photo> {
-  return spotPhotos(await getPageImages(pageKey), slot, [fallback])[0];
+/** A single-photo spot: the chosen photo for `pageKey/slot`, or null when staff chose none. */
+export async function getSpotPhoto(pageKey: string, slot: string): Promise<Photo | null> {
+  return spotPhotos(await getPageImages(pageKey), slot)[0] ?? null;
 }
 
-/** The photo shown for attractions without their own image (`site/attraction-fallback`). */
-export async function getAttractionFallbackImage(): Promise<string> {
-  const photo = await getSpotPhoto("site", "attraction-fallback", {
-    src: ATTRACTION_FALLBACK_IMAGE,
-    alt: "",
-  });
-  return photo.src;
+/** The photo staff chose for attractions without their own image (`site/attraction-fallback`), if any. */
+export async function getAttractionFallbackImage(): Promise<string | null> {
+  return (await getSpotPhoto("site", "attraction-fallback"))?.src ?? null;
 }
 
-/** Staff-managed FAQs, or the exact-phrasing fallback set when none exist. */
+/**
+ * Every active FAQ staff manage in the admin console (each tagged with its
+ * page), or the built-in set when the API is unreachable or has none.
+ */
 export async function getFaqs(): Promise<FAQ[]> {
-  const [faqs, fromPrice] = await Promise.all([
-    publicFetch<FAQ[]>("/content/faqs", publicFetchOpts).catch(() => [] as FAQ[]),
-    getFromPrice(),
-  ]);
-  return faqs.length > 0
-    ? [...faqs].sort((a, b) => a.sort_order - b.sort_order)
-    : fallbackFaqs(fromPrice);
+  const faqs = await publicFetch<FAQ[]>("/content/faqs", publicFetchOpts).catch(() => [] as FAQ[]);
+  if (faqs.length > 0) return [...faqs].sort((a, b) => a.display_position - b.display_position);
+  return fallbackFaqs(await getFromPrice());
 }

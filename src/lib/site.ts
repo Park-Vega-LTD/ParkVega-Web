@@ -25,17 +25,22 @@ export const OPEN_DAYS_LONG =
 export const OPEN_HOURS = "11am – 6pm";
 
 /** Lowest adult ticket price shown when the ticketing API is unreachable. */
-export const FALLBACK_TICKET_PRICE = 15000;
+export const FALLBACK_TICKET_PRICE = 20000;
 
 /**
  * Park Vega's social profiles, shown as icons in the footer. A network with
- * no URL yet is left out, so fill these in as the accounts are confirmed.
+ * no URL is left out. Also listed as `sameAs` in the WaterPark schema.
  */
-export const SOCIAL_LINKS: { network: "youtube" | "instagram" | "facebook" | "x"; label: string; url: string | null }[] = [
-  { network: "youtube", label: "YouTube", url: null },
-  { network: "instagram", label: "Instagram", url: null },
-  { network: "facebook", label: "Facebook", url: null },
-  { network: "x", label: "X (Twitter)", url: null },
+export const SOCIAL_LINKS: {
+  network: "youtube" | "instagram" | "facebook" | "tiktok" | "x";
+  label: string;
+  url: string | null;
+}[] = [
+  { network: "instagram", label: "Instagram", url: "https://www.instagram.com/parkvegawaterpark" },
+  { network: "facebook", label: "Facebook", url: "https://www.facebook.com/parkvegawaterpark" },
+  { network: "tiktok", label: "TikTok", url: "https://www.tiktok.com/@parkvegawaterpark" },
+  { network: "youtube", label: "YouTube", url: "https://www.youtube.com/@parkvegawaterpark4507" },
+  { network: "x", label: "X (Twitter)", url: "https://x.com/ParkVegaWP" },
 ];
 
 /**

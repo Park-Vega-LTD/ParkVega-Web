@@ -9,25 +9,15 @@ import { FoodOrderSheet } from "@/components/parkvega/food-order/order-sheet";
 import { isMenuPhoto } from "@/lib/menu";
 import { getRestaurantMenus } from "@/lib/menu-data";
 import { getExtraOpenDates, getPageImages, spotPhotos } from "@/lib/public-data";
-import { sitePhoto, type Photo } from "@/lib/site-photos";
+import type { Photo } from "@/lib/site-photos";
 import { cn } from "@/lib/utils";
 
 // ISR: regenerate the restaurants page at most once every 60 seconds (Requirement 4.1).
 export const revalidate = 60;
 
-/**
- * Shown in the header only when the API has fewer than three dish photos.
- * Staff can swap them under Page images (`restaurants/header`).
- */
-const FALLBACK_PHOTOS: Photo[] = [
-  { src: sitePhoto("/restaurant/bbq-chicken.jpg"), alt: "Glazed barbecue chicken quarter served with chunky chips" },
-  { src: sitePhoto("/restaurant/fried-rice.jpg"), alt: "Fried rice with sweetcorn, peas and greens, served with spicy beef" },
-  { src: sitePhoto("/restaurant/blue-lime-drink.jpg"), alt: "Chilled blue drink in a martini glass garnished with a lime slice" },
-];
-
-/** The `restaurants/header` photos staff chose, over the stock shots. */
+/** The `restaurants/header` photos staff chose under Page images (none built in). */
 async function getHeaderPhotos(): Promise<Photo[]> {
-  return spotPhotos(await getPageImages("restaurants"), "header", FALLBACK_PHOTOS);
+  return spotPhotos(await getPageImages("restaurants"), "header");
 }
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -43,14 +33,14 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
       type: "website",
-      images: [shareImage.src],
+      images: shareImage ? [shareImage.src] : undefined,
     },
     twitter: {
       card: "summary_large_image",
       title: "Restaurants & Menus | Park Vega Waterpark",
       description:
         "Nigerian classics, family favourites, cool drinks and quick snacks served across Park Vega in Agbor, Delta State.",
-      images: [shareImage.src],
+      images: shareImage ? [shareImage.src] : undefined,
     },
   };
 }
@@ -59,17 +49,17 @@ export default async function RestaurantsPage() {
   const activeRestaurants = await getRestaurantMenus();
   const menus = activeRestaurants.map((restaurant) => restaurant.menu);
 
-  const [extraOpenDates, fallbackPhotos] = await Promise.all([getExtraOpenDates(), getHeaderPhotos()]);
+  const [extraOpenDates, headerPhotos] = await Promise.all([getExtraOpenDates(), getHeaderPhotos()]);
 
   const menuData = activeRestaurants.map((restaurant, index) => ({ restaurant, items: menus[index] }));
   const allItems = menus.flat();
-  // Header photos: staff dish photos first (popular dishes lead), topped up with the stock shots.
+  // Header photos: dish photos first (popular dishes lead), topped up with the `restaurants/header` spot.
   const photos = [
     ...allItems
       .filter((item) => item.active && isMenuPhoto(item.image_url))
       .sort((a, b) => Number(b.popular) - Number(a.popular))
       .map((item) => ({ src: item.image_url as string, alt: item.name })),
-    ...fallbackPhotos,
+    ...headerPhotos,
   ]
     .filter((photo, i, all) => all.findIndex((other) => other.src === photo.src) === i)
     .slice(0, 3);
@@ -79,7 +69,7 @@ export default async function RestaurantsPage() {
   return (
     <>
       <section className="bg-deep text-hero-foreground">
-        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:py-16">
+        <div className={cn("mx-auto grid max-w-7xl items-center gap-10 px-4 py-12 sm:px-6 lg:py-16", photos.length > 0 && "lg:grid-cols-[1.1fr_1fr]")}>
           <div>
             <span className="text-sm font-bold uppercase tracking-wide text-secondary">Eat, drink and refuel</span>
             <h1 className="mt-3 max-w-xl text-balance text-4xl font-bold leading-tight sm:text-5xl">Big flavours between big thrills.</h1>
@@ -101,13 +91,15 @@ export default async function RestaurantsPage() {
               </a>
             )}
           </div>
-          <div className="grid grid-cols-[1.3fr_1fr] grid-rows-2 gap-3 sm:gap-4">
-            {photos.map((photo, i) => (
-              <div key={photo.src} className={cn("relative overflow-hidden rounded-3xl bg-white/10", i === 0 ? "row-span-2 aspect-[4/5]" : "aspect-square")}>
-                <Image src={photo.src} alt={photo.alt} fill priority={i === 0} sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
-              </div>
-            ))}
-          </div>
+          {photos.length > 0 && (
+            <div className="grid grid-cols-[1.3fr_1fr] grid-rows-2 gap-3 sm:gap-4">
+              {photos.map((photo, i) => (
+                <div key={photo.src} className={cn("relative overflow-hidden rounded-3xl bg-white/10", i === 0 ? "row-span-2 aspect-[4/5]" : "aspect-square")}>
+                  <Image src={photo.src} alt={photo.alt} fill priority={i === 0} sizes="(max-width: 1024px) 50vw, 25vw" className="object-cover" />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -131,10 +123,7 @@ export default async function RestaurantsPage() {
       <Suspense fallback={null}>
         <FoodOrderSheet extraOpenDates={extraOpenDates} />
       </Suspense>
-      <FaqBlock extra={[
-          ["Can I bring my own food to Park Vega?", "No. Outside food, alcohol, glassware and bottles are not allowed. Park Vega Restaurant serves meals, snacks and drinks inside the park."],
-          ["Can I order food online at Park Vega?", "Yes. Order on this website and pick up your food in person at the restaurant."],
-        ]} />
+      <FaqBlock page="restaurants" />
     </>
   );
 }

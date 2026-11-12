@@ -12,7 +12,6 @@ import { Button } from "@/components/ui/button";
 import { ApiError, publicFetch } from "@/lib/api.server";
 import { excerptOf, isPublished, postDate, readMinutes, truncate } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
-import { sitePhoto } from "@/lib/site-photos";
 import type { ContentPage } from "@/types/api";
 
 // ISR: regenerate each blog post page at most once every 60 seconds
@@ -89,7 +88,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     "@type": "BlogPosting",
     headline: post.title,
     description: excerptOf(post),
-    image: post.cover_image_url ?? sitePhoto("/photos/aqua-tower-aerial.jpg"),
+    image: post.cover_image_url ?? undefined,
     datePublished: date,
     dateModified: post.updated_at,
     mainEntityOfPage: `${SITE_URL}/blog/${post.slug}`,

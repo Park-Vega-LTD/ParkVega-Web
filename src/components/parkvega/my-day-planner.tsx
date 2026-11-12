@@ -17,7 +17,6 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ATTRACTION_FALLBACK_IMAGE } from "@/lib/site-photos";
 import type { Attraction, ItineraryItem, VisitorPlan } from "@/types/api";
 
 /** The park opens at 11:00; stops are spaced 30 minutes apart, last at 17:30. */
@@ -76,12 +75,12 @@ function attractionIds(items: ItineraryItem[]): string[] {
 export function MyDayPlanner({
   initialAttractions,
   extraOpenDates = [],
-  fallbackImage = ATTRACTION_FALLBACK_IMAGE,
+  fallbackImage = null,
 }: {
   initialAttractions: Attraction[];
   extraOpenDates?: string[];
-  /** The `site/attraction-fallback` photo, shown for attractions without one. */
-  fallbackImage?: string;
+  /** The staff-chosen `site/attraction-fallback` photo, shown for attractions without one. */
+  fallbackImage?: string | null;
 }) {
   const queryClient = useQueryClient();
   const [visitDate, setVisitDate] = useState(() =>
@@ -228,14 +227,16 @@ export function MyDayPlanner({
               return (
                 <li key={attraction.id}>
                   <Card className="overflow-hidden py-0">
-                    <div className="relative aspect-[4/3] w-full">
-                      <Image
-                        src={attraction.image_url || fallbackImage}
-                        alt={attraction.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, 33vw"
-                        className="object-cover"
-                      />
+                    <div className="relative aspect-[4/3] w-full bg-ocean-soft">
+                      {(attraction.image_url || fallbackImage) && (
+                        <Image
+                          src={(attraction.image_url || fallbackImage) as string}
+                          alt={attraction.name}
+                          fill
+                          sizes="(max-width: 768px) 100vw, 33vw"
+                          className="object-cover"
+                        />
+                      )}
                     </div>
                     <CardContent className="space-y-3 p-4">
                       <div>

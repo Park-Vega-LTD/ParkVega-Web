@@ -43,7 +43,6 @@ import {
   type ServiceTone,
 } from "@/lib/services-content";
 import { whatsappUrl } from "@/lib/site";
-import { sitePhoto, type Photo } from "@/lib/site-photos";
 import { cn } from "@/lib/utils";
 import type { ContentPage } from "@/types/api";
 
@@ -54,32 +53,14 @@ const TITLE = "Services | Park Vega Waterpark Agbor";
 const DESCRIPTION =
   "Guest services at Park Vega Waterpark, Agbor: private cabanas, dining, lifeguards, life jackets, online tickets and corporate and group bookings.";
 
-const HERO: Photo = {
-  src: sitePhoto("/photos/aqua-tower-aerial.jpg"),
-  alt: "Aerial view of Park Vega's slide tower, splash pad and shaded cabana area",
-};
-
-const CABANA_PHOTO: Photo = {
-  src: sitePhoto("/photos/friends-floating-tubes.jpg"),
-  alt: "Friends holding hands as they relax on rubber rings at Park Vega",
-};
-
-/** Staff-chosen `services/hero`, `services/cabanas` and `services/groups` photos over the defaults. */
+/** Staff-chosen `services/hero`, `services/cabanas` and `services/groups` photos; a spot left empty shows none. */
 async function getPhotos() {
   const images = await getPageImages("services");
-  const groupPhotos = spotPhotos(
-    images,
-    "groups",
-    GROUP_OFFERS.map((offer) => ({ src: offer.image, alt: offer.imageAlt })),
-  );
+  const groupPhotos = spotPhotos(images, "groups");
   return {
-    hero: spotPhotos(images, "hero", [HERO])[0],
-    cabana: spotPhotos(images, "cabanas", [CABANA_PHOTO])[0],
-    groupOffers: GROUP_OFFERS.map((offer, index) => ({
-      ...offer,
-      image: groupPhotos[index].src,
-      imageAlt: groupPhotos[index].alt,
-    })),
+    hero: spotPhotos(images, "hero")[0] ?? null,
+    cabana: spotPhotos(images, "cabanas")[0] ?? null,
+    groupOffers: GROUP_OFFERS.map((offer, index) => ({ ...offer, photo: groupPhotos[index] ?? null })),
   };
 }
 
@@ -91,7 +72,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: TITLE,
     description: DESCRIPTION,
     alternates: { canonical: "/services" },
-    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: hero ? [hero.src] : undefined },
     twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   };
 }
@@ -183,8 +164,8 @@ export default async function ServicesPage() {
         eyebrow="Guest services"
         title="Everything taken care of, so you just play."
         description="Private cabanas, all-day dining, lifeguards on every pool and group hosting for parties, schools and companies. Here's how we look after you at Park Vega."
-        image={hero.src}
-        imageAlt={hero.alt}
+        image={hero?.src}
+        imageAlt={hero?.alt}
       />
 
       {/* Headline numbers */}
@@ -269,19 +250,21 @@ export default async function ServicesPage() {
           {/* The premium service gets its own showcase straight after the comfort basics. */}
           {category.id === "comfort" && (
             <section id="cabanas" className="scroll-mt-24 px-3 sm:px-6">
-              <div className="mx-auto grid max-w-7xl overflow-hidden rounded-3xl bg-deep text-hero-foreground lg:grid-cols-2">
-                <div className="relative min-h-72 lg:min-h-full">
-                  <Image
-                    src={cabana.src}
-                    alt={cabana.alt}
-                    fill
-                    sizes="(max-width: 1024px) 100vw, 50vw"
-                    className="object-cover"
-                  />
-                  <span className="absolute left-5 top-5 rounded-full bg-accent px-3 py-1 text-[11px] font-extrabold uppercase text-accent-foreground">
-                    Premium
-                  </span>
-                </div>
+              <div className={cn("mx-auto grid max-w-7xl overflow-hidden rounded-3xl bg-deep text-hero-foreground", cabana && "lg:grid-cols-2")}>
+                {cabana && (
+                  <div className="relative min-h-72 lg:min-h-full">
+                    <Image
+                      src={cabana.src}
+                      alt={cabana.alt}
+                      fill
+                      sizes="(max-width: 1024px) 100vw, 50vw"
+                      className="object-cover"
+                    />
+                    <span className="absolute left-5 top-5 rounded-full bg-accent px-3 py-1 text-[11px] font-extrabold uppercase text-accent-foreground">
+                      Premium
+                    </span>
+                  </div>
+                )}
                 <div className="p-6 py-10 sm:p-12">
                   <span className="text-xs font-extrabold uppercase text-secondary">Private cabanas</span>
                   <h2 className="mt-3 text-balance text-[1.75rem] font-bold leading-tight sm:text-4xl">
@@ -360,15 +343,17 @@ export default async function ServicesPage() {
               data-reveal
               className="card-lift group overflow-hidden rounded-3xl border border-border bg-card hover:border-primary/50"
             >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <Image
-                  src={offer.image}
-                  alt={offer.imageAlt}
-                  fill
-                  sizes="(max-width: 768px) 100vw, 33vw"
-                  className="object-cover"
-                />
-              </div>
+              {offer.photo && (
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <Image
+                    src={offer.photo.src}
+                    alt={offer.photo.alt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 33vw"
+                    className="object-cover"
+                  />
+                </div>
+              )}
               <div className="p-6">
                 <h3 className="text-xl font-semibold transition-colors group-hover:text-primary-ink">{offer.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{offer.text}</p>
@@ -435,24 +420,7 @@ export default async function ServicesPage() {
 
       <FaqBlock
         title="Questions about our services."
-        extra={[
-          [
-            "Can I rent a cabana at Park Vega?",
-            "Yes. Private cabanas seat up to 12 guests and come with a TV, phone charging and a fan. Cabanas are limited, so book ahead on WhatsApp.",
-          ],
-          [
-            "Can I bring my own food to Park Vega?",
-            "Outside food, alcohol, glassware and bottles are not allowed. Park Vega Restaurant serves meals and drinks all day, and you can order online and pick up in person.",
-          ],
-          [
-            "Are life jackets free at Park Vega?",
-            "Yes. Life jackets and tubes are available for every non-swimmer, and lifeguards are on duty at the pools and slides.",
-          ],
-          [
-            "Does Park Vega host corporate events?",
-            "Yes. Companies, churches and groups of 20 or more get group pricing, with cabanas and meal packages planned for you. Send an enquiry on this page or on WhatsApp.",
-          ],
-        ]}
+        page="services"
       />
     </>
   );

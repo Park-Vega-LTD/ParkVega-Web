@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { AttractionCard } from "@/components/parkvega/attraction-card";
 import { Button } from "@/components/ui/button";
-import { ATTRACTION_FALLBACK_IMAGE } from "@/lib/site-photos";
 import type { Attraction } from "@/types/api";
 
 const CATEGORIES = ["All", "Thrill", "Family", "Kids", "Relax"] as const;
@@ -13,11 +12,11 @@ type Category = (typeof CATEGORIES)[number];
 
 export function AttractionsFilter({
   attractions,
-  fallbackImage = ATTRACTION_FALLBACK_IMAGE,
+  fallbackImage = null,
 }: {
   attractions: Attraction[];
-  /** Shown for attractions without their own photo. */
-  fallbackImage?: string;
+  /** The staff-chosen photo for attractions without their own. */
+  fallbackImage?: string | null;
 }) {
   const [selected, setSelected] = useState<Category>("All");
 

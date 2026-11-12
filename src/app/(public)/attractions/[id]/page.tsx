@@ -105,7 +105,7 @@ export default async function AttractionDetailPage({ params }: PageProps) {
     throw err;
   }
 
-  const fallbackImage = await getAttractionFallbackImage();
+  const heroImage = attraction.image_url || (await getAttractionFallbackImage());
   const schedules = attraction.schedules ?? [];
   const safety = safetyList(attraction);
 
@@ -113,15 +113,19 @@ export default async function AttractionDetailPage({ params }: PageProps) {
     <>
       <section className="px-3 py-3 sm:px-6 sm:py-5">
         <div className="relative mx-auto min-h-[460px] max-w-7xl overflow-hidden rounded-3xl bg-foreground">
-          <Image
-            src={attraction.image_url || fallbackImage}
-            alt={attraction.name}
-            fill
-            sizes="100vw"
-            preload
-            className="absolute inset-0 size-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 via-foreground/60 to-transparent" />
+          {heroImage && (
+            <>
+              <Image
+                src={heroImage}
+                alt={attraction.name}
+                fill
+                sizes="100vw"
+                preload
+                className="absolute inset-0 size-full object-cover"
+              />
+              <div className="absolute inset-0 bg-gradient-to-r from-foreground/95 via-foreground/60 to-transparent" />
+            </>
+          )}
           <div className="relative flex min-h-[460px] max-w-2xl flex-col justify-end p-6 pb-12 sm:p-12">
             <span className="text-xs font-extrabold uppercase text-secondary">
               {attraction.category}

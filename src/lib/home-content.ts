@@ -1,8 +1,3 @@
-import type { FAQ } from "@/types/api";
-
-import { OPEN_DAYS_LONG, OPEN_HOURS, formatNaira } from "@/lib/site";
-import { sitePhoto } from "@/lib/site-photos";
-
 /**
  * Static homepage copy. Each block is the fallback shown when the matching
  * REST API collection is empty or unreachable, so the page never renders
@@ -13,7 +8,8 @@ export type AttractionHighlight = {
   name: string;
   description: string;
   tags: string[];
-  image: string;
+  /** The attraction's photo from the API; the built-in fallback list has none. */
+  image?: string;
 };
 
 export const FALLBACK_ATTRACTIONS: AttractionHighlight[] = [
@@ -21,37 +17,31 @@ export const FALLBACK_ATTRACTIONS: AttractionHighlight[] = [
     name: "Wave Pool",
     description: "Half a million gallons of ocean-style waves across 1,500m² – the heart of the park.",
     tags: ["All ages", "1,500m² pool"],
-    image: sitePhoto("/photos/wave-pool-crowd.jpg"),
   },
   {
     name: "Space Hole Slide",
     description: "Twists, turns and a spin round the jumbo bowl before you splash down.",
     tags: ["Min. 120cm", "High thrill"],
-    image: sitePhoto("/photos/aqua-tower-aerial.jpg"),
   },
   {
     name: "Blackhole Combo",
     description: "A steep drop up a near-vertical wall for a moment of weightlessness. Ride it as a pair.",
     tags: ["Min. 120cm", "Double raft"],
-    image: sitePhoto("/photos/tube-slide-pair.png"),
   },
   {
     name: "Freefall Slide",
     description: "An extremely thrilling slide with a moment of weightlessness – a must for adrenaline seekers.",
     tags: ["Min. 120cm", "High thrill"],
-    image: sitePhoto("/photos/mat-racer-slide.jpg"),
   },
   {
     name: "Aqua Tower",
     description: "Four gentle slides and 50+ splash features: tipping bucket, bubbler jets and more.",
     tags: ["Kids", "Zero-depth pool"],
-    image: sitePhoto("/photos/splash-zone-kids.jpg"),
   },
   {
     name: "Relax Pool",
     description: "A slow, meandering pool with a swim-up bar. Grab a drink and unwind.",
     tags: ["1.2m deep", "Swim-up bar"],
-    image: sitePhoto("/photos/pool-guests-ball.jpg"),
   },
 ];
 
@@ -130,51 +120,3 @@ export const PROHIBITED_ITEMS = [
   { label: "Jerry cans & tanks", icon: "tank" },
   { label: "Tasers", icon: "taser" },
 ] as const;
-
-/**
- * FAQ fallback written in the exact phrasing people type into Google and AI
- * assistants (brief §4). Travel times are approximate and should be confirmed
- * by the Park Vega team.
- */
-export function fallbackFaqs(fromPrice: number): FAQ[] {
-  const items: [string, string][] = [
-    [
-      "How much is Park Vega Waterpark ticket?",
-      `Tickets start from ${formatNaira(fromPrice)} and give you unlimited access to every attraction from ${OPEN_HOURS}. Children under 90cm get in free. Buy online at parkvega.com/tickets.`,
-    ],
-    [
-      "When is Park Vega Waterpark open?",
-      `Park Vega opens on ${OPEN_DAYS_LONG}, from ${OPEN_HOURS}.`,
-    ],
-    [
-      "Is Park Vega good for kids?",
-      "Yes. Younger children have the Aqua Tower, Kids Splash Zone and zero-depth pools with anti-slip floors, and life jackets are provided for non-swimmers. The big slides need a minimum height of 120cm, and children under 150cm must be with an adult.",
-    ],
-    [
-      "Where can I take my kids to play in the water in Agbor?",
-      "Park Vega Waterpark on Ewuru Road, off the Benin–Asaba Expressway in Agbor, has a wave pool, kids' splash zones, zero-depth pools and gentle slides, with lifeguards on duty.",
-    ],
-    [
-      "How far is Park Vega from Asaba?",
-      "Park Vega is in Agbor, roughly a one-hour drive west of Asaba along the Benin–Asaba Expressway. Benin City is a similar distance to the east.",
-    ],
-    [
-      "Is Park Vega worth a special trip from Lagos?",
-      "Yes. Park Vega is one of the largest international-standard waterparks in West Africa, with 15 attractions on one ticket. Many visitors from Lagos fly into Benin or Asaba and drive about an hour to the park.",
-    ],
-    [
-      "What should I wear?",
-      "Only lined swimwear made of swimming-friendly material. No underwear, footwear or socks in the pools or on the slides, and no jewellery on rides.",
-    ],
-    [
-      "Can I book a birthday party or school trip?",
-      "Yes. Private cabanas seat up to 12 guests, and schools, corporates and groups above 20 get group pricing. Chat with us on WhatsApp to plan it.",
-    ],
-  ];
-  return items.map(([question, answer], index) => ({
-    id: `faq-${index}`,
-    question,
-    answer,
-    sort_order: index,
-  }));
-}

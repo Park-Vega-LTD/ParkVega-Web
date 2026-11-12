@@ -30,7 +30,6 @@ import {
   formatNaira,
   whatsappUrl,
 } from "@/lib/site";
-import { sitePhoto, type Photo } from "@/lib/site-photos";
 import {
   ACCOMMODATION,
   ADD_ONS,
@@ -48,13 +47,8 @@ const TITLE = "Plan Your Visit | Park Vega Waterpark Prices, Hours & Rules";
 const DESCRIPTION =
   "Park Vega ticket prices, opening hours, what to wear, food policy, safety rules, add-ons and directions to Agbor, Delta State. Everything before you go.";
 
-const HERO: Photo = {
-  src: sitePhoto("/photos/aqua-tower-aerial.jpg"),
-  alt: "Aerial view of the Park Vega slide tower, kids' splash pad and shaded lounging area",
-};
-
-/** The `plan-your-visit/hero` photo staff chose, else the default. */
-const getHero = () => getSpotPhoto("plan-your-visit", "hero", HERO);
+/** The `plan-your-visit/hero` photo staff chose, or null when none is set. */
+const getHero = () => getSpotPhoto("plan-your-visit", "hero");
 
 // Per Requirement 5.1, every page exports a `generateMetadata()` function
 // returning a unique title (<= 60 chars) and description (<= 160 chars).
@@ -64,7 +58,7 @@ export async function generateMetadata(): Promise<Metadata> {
     title: TITLE,
     description: DESCRIPTION,
     alternates: { canonical: "/plan-your-visit" },
-    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: [hero.src] },
+    openGraph: { title: TITLE, description: DESCRIPTION, type: "website", images: hero ? [hero.src] : undefined },
     twitter: { card: "summary_large_image", title: TITLE, description: DESCRIPTION },
   };
 }
@@ -151,8 +145,8 @@ export default async function PlanYourVisitPage() {
         eyebrow="Before you set out"
         title={page?.title ?? "Plan your visit to Park Vega."}
         description={`Tickets from ${formatNaira(fromPrice)}. Open ${OPEN_DAYS_LONG}, ${OPEN_HOURS}. Here's everything you need for a smooth splash day.`}
-        image={hero.src}
-        imageAlt={hero.alt}
+        image={hero?.src}
+        imageAlt={hero?.alt}
       />
 
       <nav aria-label="On this page" className="mx-auto max-w-7xl px-4 pt-8 sm:px-6">
@@ -374,16 +368,7 @@ export default async function PlanYourVisitPage() {
 
       <FaqBlock
         className="bg-background"
-        extra={[
-          [
-            "What time does Park Vega open and close?",
-            `Park Vega is open ${OPEN_HOURS} on ${OPEN_DAYS_LONG}.`,
-          ],
-          [
-            "Can I bring my own food to Park Vega?",
-            "No. Outside food, alcohol, glassware and bottles are not allowed. Park Vega Restaurant serves meals, snacks and drinks inside the park.",
-          ],
-        ]}
+        page="plan-your-visit"
       />
     </>
   );

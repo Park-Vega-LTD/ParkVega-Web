@@ -56,10 +56,7 @@ export default async function AttractionsPage() {
           <AttractionsFilter attractions={activeAttractions} fallbackImage={fallbackImage} />
         </div>
       </section>
-      <FaqBlock extra={[
-          ["Is Park Vega good for kids?", "Yes. Younger children have the Aqua Tower, Kids Splash Zone and zero-depth pools, while the big slides need a minimum height of 120cm. Children under 150cm must be with an adult."],
-          ["How many attractions does Park Vega have?", "Park Vega has 15 attractions, including the Wave Pool, thrill slides, the Aqua Tower and the Relax Pool with a swim-up bar. One ticket covers unlimited rides on all of them."],
-        ]} />
+      <FaqBlock title="Attraction FAQs." page="attractions" />
     </>
   );
 }

@@ -54,10 +54,7 @@ export default async function TicketsPage() {
           <BookingFunnel extraOpenDates={extraOpenDates} />
         </Suspense>
       </section>
-      <FaqBlock extra={[
-          ["When can I use my Park Vega ticket?", "Tickets are valid on Thursdays, Fridays, Saturdays, Sundays and public holidays, from 11am to 6pm."],
-          ["Do children pay at Park Vega?", "Kids between 90cm and 150cm pay the child rate, and children under 90cm get in free."],
-        ]} />
+      <FaqBlock page="tickets" />
     </>
   );
 }

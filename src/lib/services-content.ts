@@ -7,7 +7,6 @@
  * team before launch.
  */
 
-import { sitePhoto } from "@/lib/site-photos";
 import type { Package } from "@/lib/visit-content";
 
 export type ServiceTone = "ocean" | "coral" | "sun" | "leaf";
@@ -176,8 +175,6 @@ export type GroupOffer = {
   text: string;
   href: string;
   cta: string;
-  image: string;
-  imageAlt: string;
 };
 
 /** In this order for the `services/groups` page-image spot: birthdays, schools, corporate. */
@@ -187,24 +184,18 @@ export const GROUP_OFFERS: GroupOffer[] = [
     text: "Cabanas, tickets and food for the birthday crew, planned with our team.",
     href: "/birthday-parties",
     cta: "Party packages",
-    image: sitePhoto("/photos/family-splash-pad.jpg"),
-    imageAlt: "A mum and three little girls hugging and laughing in the Park Vega splash zone",
   },
   {
     title: "School excursions",
     text: "Group rates, lifeguards and a teacher checklist for a safe, fun trip.",
     href: "/school-excursions",
     cta: "Plan a school trip",
-    image: sitePhoto("/photos/wave-pool-kids-tubes.jpg"),
-    imageAlt: "Pupils in life jackets on rubber rings in the wave pool, with an adult close by",
   },
   {
     title: "Corporate & team days",
     text: "Staff fun days, team bonding and client hosting for groups of 20 and above.",
     href: "#corporate",
     cta: "Corporate packages",
-    image: sitePhoto("/photos/wave-pool-crowd.jpg"),
-    imageAlt: "A big group of adults floating on rubber rings in the Park Vega wave pool",
   },
 ];
 

@@ -39,7 +39,7 @@ import {
   formatNaira,
   whatsappUrl,
 } from "@/lib/site";
-import { sitePhoto, type Photo } from "@/lib/site-photos";
+import type { Photo } from "@/lib/site-photos";
 
 /** Inline style that staggers a `data-reveal` element by its position in a list. */
 const stagger = (i: number) => ({ "--i": i }) as CSSProperties;
@@ -98,14 +98,16 @@ export function AttractionsSection({ items }: { items: AttractionHighlight[] }) 
               style={stagger(i)}
               className={`group overflow-hidden rounded-3xl border border-border bg-card ${CARD_HOVER}`}
             >
-              <div className="relative aspect-[16/10] overflow-hidden">
-                <Image
-                  src={item.image}
-                  alt={`${item.name} at Park Vega Waterpark`}
-                  fill
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  className="object-cover transition-[scale] duration-700 ease-out group-hover:scale-110"
-                />
+              <div className="relative aspect-[16/10] overflow-hidden bg-ocean-soft">
+                {item.image && (
+                  <Image
+                    src={item.image}
+                    alt={`${item.name} at Park Vega Waterpark`}
+                    fill
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                    className="object-cover transition-[scale] duration-700 ease-out group-hover:scale-110"
+                  />
+                )}
                 <div
                   aria-hidden="true"
                   className="absolute inset-0 bg-gradient-to-t from-deep/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
@@ -206,19 +208,13 @@ export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
   );
 }
 
-/** Default photo for the `home/restaurant` spot. */
-export const RESTAURANT_PHOTO: Photo = {
-  src: sitePhoto("/park-food.jpg"),
-  alt: "Jollof rice, chicken and tropical drinks at Park Vega Restaurant",
-};
-
 export function RestaurantSection({
   items,
-  photo = RESTAURANT_PHOTO,
+  photo = null,
 }: {
   items: MenuHighlight[];
-  /** The `home/restaurant` spot photo. */
-  photo?: Photo;
+  /** The `home/restaurant` spot photo staff chose, if any. */
+  photo?: Photo | null;
 }) {
   return (
     <section className="bg-deep py-16 text-hero-foreground sm:py-20">
@@ -229,15 +225,17 @@ export function RestaurantSection({
           <p className="mt-4 max-w-md leading-relaxed text-hero-foreground/75">
             Jollof, burgers, pizza, wings and cold drinks – right inside the park. Order online and pick up in person.
           </p>
-          <div className="relative mt-8 aspect-[4/3] overflow-hidden rounded-3xl">
-            <Image
-              src={photo.src}
-              alt={photo.alt}
-              fill
-              sizes="(max-width: 1024px) 100vw, 45vw"
-              className="object-cover"
-            />
-          </div>
+          {photo && (
+            <div className="relative mt-8 aspect-[4/3] overflow-hidden rounded-3xl">
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                fill
+                sizes="(max-width: 1024px) 100vw, 45vw"
+                className="object-cover"
+              />
+            </div>
+          )}
         </div>
         <div>
           <ul className="grid gap-3">

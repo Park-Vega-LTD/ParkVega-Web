@@ -4,9 +4,9 @@ import {
   MAPS_URL,
   PHONE_E164,
   SITE_URL,
+  SOCIAL_LINKS,
   formatNaira,
 } from "@/lib/site";
-import { sitePhoto } from "@/lib/site-photos";
 import type { Event, FAQ } from "@/types/api";
 
 /**
@@ -37,12 +37,12 @@ export function waterParkSchema(fromPrice: number) {
     name: "Park Vega Waterpark",
     slogan: "Delivering Your Kind Of Fun",
     url: SITE_URL,
-    image: sitePhoto("/photos/aqua-tower-aerial.jpg"),
     telephone: PHONE_E164,
     email: EMAIL,
     priceRange: `From ${formatNaira(fromPrice)}`,
     currenciesAccepted: "NGN",
     hasMap: MAPS_URL,
+    sameAs: SOCIAL_LINKS.flatMap((social) => (social.url ? [social.url] : [])),
     address: PLACE.address,
     openingHoursSpecification: [
       {
@@ -82,7 +82,7 @@ export function eventSchemas(events: Event[], fromPrice: number, today: string) 
           "@type": "Event",
           name: event.title,
           description: event.description ?? undefined,
-          image: event.image_url ?? sitePhoto("/photos/aqua-tower-aerial.jpg"),
+          image: event.image_url ?? undefined,
           startDate: session.start_time
             ? `${session.session_date}T${session.start_time}${WAT_OFFSET}`
             : session.session_date,

@@ -32,7 +32,7 @@ export function FaqAccordion({ faqs }: { faqs: FAQ[] }) {
           <AccordionTrigger className="py-5 text-base font-bold">
             {faq.question}
           </AccordionTrigger>
-          <AccordionContent className="text-sm leading-relaxed text-muted-foreground">
+          <AccordionContent className="whitespace-pre-line text-sm leading-relaxed text-muted-foreground">
             {faq.answer}
           </AccordionContent>
         </AccordionItem>

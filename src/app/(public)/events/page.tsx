@@ -173,9 +173,7 @@ export default async function EventsPage() {
           </div>
         )}
       </section>
-      <FaqBlock extra={[
-          ["Is Park Vega open on public holidays?", "Yes. Park Vega opens on public holidays as well as every Thursday, Friday, Saturday and Sunday, from 11am to 6pm."],
-        ]} />
+      <FaqBlock page="events" />
     </>
   );
 }

@@ -5,8 +5,9 @@ export type RestaurantWithMenu = Restaurant & { menu: MenuItem[] };
 
 /**
  * The food menu, read from src/data/menu.json while the REST API isn't
- * deployed. Edit that file to change dishes, prices, photos (Cloudinary URLs)
- * or availability (`active: false` shows "Sold out").
+ * deployed. Edit that file to change dishes, prices or availability
+ * (`active: false` shows "Sold out"). It holds no photos (`image_url: null`),
+ * so dishes show their category icon until the API supplies photos.
  * Changes go live on the next build.
  *
  * Callers only see this function, so switching back to the API means
