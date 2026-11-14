@@ -21,12 +21,14 @@ import {
 } from "lucide-react";
 
 import { SectionHeading } from "@/components/parkvega/page-hero";
+import { VideoShorts } from "@/components/parkvega/home/video-shorts";
 import { ReviewsGrid } from "@/components/parkvega/reviews-grid";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import {
   DIRECTION_CITIES,
+  PARK_VIDEOS,
   type AttractionHighlight,
   type MenuHighlight,
 } from "@/lib/home-content";
@@ -367,6 +369,21 @@ export function GettingHereSection() {
             </a>
           ))}
         </div>
+      </div>
+    </section>
+  );
+}
+
+export function VideosSection() {
+  return (
+    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
+      <SectionHeading
+        eyebrow="Watch"
+        title="See the park in action."
+        description="Tap a video to play it."
+      />
+      <div className="mt-9">
+        <VideoShorts videos={PARK_VIDEOS} />
       </div>
     </section>
   );

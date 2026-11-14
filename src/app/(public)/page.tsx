@@ -12,6 +12,7 @@ import {
   PlanYourVisitSection,
   RestaurantSection,
   ReviewsSection,
+  VideosSection,
   VisitorInfoCards,
   WhyParkVega,
 } from "@/components/parkvega/home/sections";
@@ -134,6 +135,7 @@ export default async function HomePage() {
       <Billboard fromPrice={fromPrice} settings={settings} heroImages={heroImages} />
       <WhyParkVega />
       <AttractionsSection items={attractionHighlights} />
+      <VideosSection />
       <VisitorInfoCards fromPrice={fromPrice} />
       <PlanYourVisitSection fromPrice={fromPrice} />
       <RestaurantSection

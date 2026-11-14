@@ -51,8 +51,52 @@ async function apiFetch<T>(
  * key, so a fresh ID per call would defeat the cache.
  */
 export async function publicFetch<T>(path: string, options?: RequestInit): Promise<T> {
-  return apiFetch<T>(path, options)
+  if (apiDown) {
+    // While the API is down no page waits on it. Once per cooldown a call is
+    // still sent, unawaited, to notice when the API is back.
+    if (Date.now() >= apiDownUntil) {
+      apiDownUntil = Date.now() + API_DOWN_COOLDOWN_MS
+      apiFetch<T>(path, options).then(
+        () => { apiDown = false },
+        (err) => { if (err instanceof ApiError) apiDown = false },
+      )
+    }
+    throw new ApiError(503, 'API unreachable')
+  }
+
+  // A timer rather than an AbortSignal: passing a signal to fetch opts the
+  // call out of Next's request memoization.
+  let timer: ReturnType<typeof setTimeout> | undefined
+  const timeout = new Promise<never>((_, reject) => {
+    timer = setTimeout(() => reject(new TypeError('API timeout')), PUBLIC_TIMEOUT_MS)
+  })
+
+  try {
+    return await Promise.race([apiFetch<T>(path, options), timeout])
+  } catch (err) {
+    // An HTTP error means the API answered; only a network failure or a
+    // timeout (both TypeError) marks it as down.
+    if (!(err instanceof ApiError)) {
+      apiDown = true
+      apiDownUntil = Date.now() + API_DOWN_COOLDOWN_MS
+    }
+    throw err
+  } finally {
+    clearTimeout(timer)
+  }
 }
+
+/**
+ * Public pages fall back to built-in content when the API fails, so a slow or
+ * unreachable API must not hold up the page. A call gives up after
+ * PUBLIC_TIMEOUT_MS, and after one network failure every public call fails
+ * immediately, instead of each waiting out its own DNS or connect timeout,
+ * until a background check every API_DOWN_COOLDOWN_MS gets an answer.
+ */
+const PUBLIC_TIMEOUT_MS = 2500
+const API_DOWN_COOLDOWN_MS = 30_000
+let apiDown = false
+let apiDownUntil = 0
 
 /** One correlation ID per server request, so identical fetches still de-duplicate. */
 const requestCorrelationId = cache(() => crypto.randomUUID())

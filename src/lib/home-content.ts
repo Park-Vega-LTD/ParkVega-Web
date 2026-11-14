@@ -120,3 +120,12 @@ export const PROHIBITED_ITEMS = [
   { label: "Jerry cans & tanks", icon: "tank" },
   { label: "Tasers", icon: "taser" },
 ] as const;
+
+/**
+ * Park Vega's own YouTube Shorts shown on the homepage. `id` is the part of
+ * the YouTube link after `/shorts/`. Add or remove entries to change the videos.
+ */
+export const PARK_VIDEOS = [
+  { id: "0lGxolhIYxI", title: "Slides. Waves. Smiles." },
+  { id: "rF4kpE23AeE", title: "Your kind of fun" },
+];
