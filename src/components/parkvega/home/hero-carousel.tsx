@@ -5,6 +5,7 @@ import { ChevronLeft, ChevronRight, Pause, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { HeroVideo } from "@/components/parkvega/home/hero-video";
+import { cloudinaryLoader, isCloudinaryUrl } from "@/lib/cloudinary";
 import { cn } from "@/lib/utils";
 
 /** `position` is a CSS object-position for photos whose subject sits off-centre (e.g. "50% 25%"). */
@@ -84,7 +85,7 @@ export function HeroCarousel({
           aria-hidden={i !== index}
           className={cn("absolute inset-0 -z-20 overflow-hidden transition-opacity duration-1000 ease-out", i === index ? "opacity-100" : "opacity-0")}
         >
-          {item.image && <Image src={item.image} alt={item.alt} fill preload={i === 0} sizes="100vw" className="object-cover" style={item.position ? { objectPosition: item.position } : undefined} />}
+          {item.image && <Image src={item.image} alt={item.alt} fill preload={i === 0} sizes="100vw" loader={isCloudinaryUrl(item.image) ? cloudinaryLoader : undefined} className="object-cover" style={item.position ? { objectPosition: item.position } : undefined} />}
           {i === 0 && videoUrl && <HeroVideo src={videoUrl} />}
         </div>
       ))}

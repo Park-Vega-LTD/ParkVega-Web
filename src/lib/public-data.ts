@@ -3,6 +3,8 @@ import { fallbackFaqs } from "@/lib/faq-fallback";
 import {
   EXTRA_OPEN_DATES,
   FALLBACK_TICKET_PRICE,
+  HERO_POSTER_URL,
+  HERO_VIDEO_URL,
   OPEN_DAYS_LONG,
   OPEN_HOURS,
 } from "@/lib/site";
@@ -48,8 +50,8 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   opening_days: OPEN_DAYS_LONG,
   opening_hours: OPEN_HOURS,
   extra_open_dates: EXTRA_OPEN_DATES,
-  hero_video_url: process.env.NEXT_PUBLIC_HERO_VIDEO_URL || null,
-  hero_image_url: null,
+  hero_video_url: process.env.NEXT_PUBLIC_HERO_VIDEO_URL || HERO_VIDEO_URL,
+  hero_image_url: HERO_POSTER_URL,
   notice: null,
 };
 

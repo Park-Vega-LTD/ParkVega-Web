@@ -28,6 +28,16 @@ export const OPEN_HOURS = "11am – 6pm";
 export const FALLBACK_TICKET_PRICE = 20000;
 
 /**
+ * Default homepage billboard video (the original upload on Cloudinary; the
+ * player requests a compressed size) and its still, a frame 2 s in, which
+ * paints first and stays for visitors who don't get the video. Staff can
+ * replace both in the admin console's site settings.
+ */
+const HERO_VIDEO_PATH = "rlenhslv/video/upload/v1794651130/Park_Vega_Waterpark_Nigerias_No.1_Family_Waterpark_1";
+export const HERO_VIDEO_URL = `https://res.cloudinary.com/${HERO_VIDEO_PATH}.mp4`;
+export const HERO_POSTER_URL = `https://res.cloudinary.com/${HERO_VIDEO_PATH.replace("/upload/", "/upload/so_2,q_auto,w_1920/")}.jpg`;
+
+/**
  * Park Vega's social profiles, shown as icons in the footer. A network with
  * no URL is left out. Also listed as `sameAs` in the WaterPark schema.
  */
