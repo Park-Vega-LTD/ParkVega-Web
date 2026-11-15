@@ -8,40 +8,50 @@ export type AttractionHighlight = {
   name: string;
   description: string;
   tags: string[];
-  /** The attraction's photo from the API; the built-in fallback list has none. */
+  /** The attraction's photo. */
   image?: string;
+  /** A YouTube link or MP4 file; when set, the photo gets a play button that opens it. */
+  video?: string;
 };
+
+const PHOTOS = "https://res.cloudinary.com/rlenhslv/image/upload";
 
 export const FALLBACK_ATTRACTIONS: AttractionHighlight[] = [
   {
     name: "Wave Pool",
     description: "Half a million gallons of ocean-style waves across 1,500m² – the heart of the park.",
     tags: ["All ages", "1,500m² pool"],
-  },
-  {
-    name: "Space Hole Slide",
-    description: "Twists, turns and a spin round the jumbo bowl before you splash down.",
-    tags: ["Min. 120cm", "High thrill"],
+    image: `${PHOTOS}/v1793463013/parkvega/site/photos/pool-guests-ball.jpg`,
   },
   {
     name: "Blackhole Combo",
     description: "A steep drop up a near-vertical wall for a moment of weightlessness. Ride it as a pair.",
     tags: ["Min. 120cm", "Double raft"],
+    image: `${PHOTOS}/v1793463021/parkvega/site/photos/tube-slide-pair.png`,
   },
   {
-    name: "Freefall Slide",
-    description: "An extremely thrilling slide with a moment of weightlessness – a must for adrenaline seekers.",
-    tags: ["Min. 120cm", "High thrill"],
+    name: "Mat Racer",
+    description: "Grab a mat and race your friends side by side down the slide to the splash at the bottom.",
+    tags: ["Race your friends", "Thrill"],
+    image: `${PHOTOS}/v1793463010/parkvega/site/photos/mat-racer-slide.jpg`,
   },
   {
     name: "Aqua Tower",
     description: "Four gentle slides and 50+ splash features: tipping bucket, bubbler jets and more.",
     tags: ["Kids", "Zero-depth pool"],
+    image: `${PHOTOS}/v1793463002/parkvega/site/photos/aqua-tower-aerial.jpg`,
+  },
+  {
+    name: "Kids' Splash Zone",
+    description: "Fountains, spray poles and anti-slip floors where little ones can splash safely.",
+    tags: ["Kids", "Zero-depth pool"],
+    image: `${PHOTOS}/v1793463017/parkvega/site/photos/splash-zone-kids.jpg`,
   },
   {
     name: "Relax Pool",
     description: "A slow, meandering pool with a swim-up bar. Grab a drink and unwind.",
     tags: ["1.2m deep", "Swim-up bar"],
+    image: `${PHOTOS}/v1793463008/parkvega/site/photos/friends-floating-tubes.jpg`,
   },
 ];
 

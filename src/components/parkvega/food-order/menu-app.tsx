@@ -27,6 +27,7 @@ import { createElement, useEffect, useMemo, useRef, useState } from "react";
 
 import { cart, cartCount, cartTotal, openFoodOrder, useCart } from "@/components/parkvega/food-order/cart-store";
 import { QuantityStepper } from "@/components/parkvega/food-order/quantity-stepper";
+import { cloudinaryLoader, isCloudinaryUrl } from "@/lib/cloudinary";
 import { BADGE_LABELS, isMenuPhoto, menuDescription } from "@/lib/menu";
 import { cn, formatNaira } from "@/lib/utils";
 import type { MenuItem, MenuItemBadge, Restaurant } from "@/types/api";
@@ -312,6 +313,7 @@ function DishCard({ item, restaurantId, quantity, tone }: { item: MenuItem; rest
             alt={item.name}
             fill
             sizes="(max-width: 640px) 112px, (max-width: 1280px) 33vw, 280px"
+            loader={isCloudinaryUrl(item.image_url) ? cloudinaryLoader : undefined}
             className={cn("object-cover", soldOut && "grayscale")}
           />
         ) : (

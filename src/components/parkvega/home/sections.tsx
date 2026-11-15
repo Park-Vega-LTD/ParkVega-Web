@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 
 import { SectionHeading } from "@/components/parkvega/page-hero";
+import { AttractionVideo } from "@/components/parkvega/home/attraction-video";
 import { VideoShorts } from "@/components/parkvega/home/video-shorts";
 import { ReviewsGrid } from "@/components/parkvega/reviews-grid";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
@@ -114,6 +115,7 @@ export function AttractionsSection({ items }: { items: AttractionHighlight[] }) 
                   aria-hidden="true"
                   className="absolute inset-0 bg-gradient-to-t from-deep/40 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100"
                 />
+                {item.video && <AttractionVideo url={item.video} name={item.name} />}
               </div>
               <div className="p-5">
                 <h3 className="text-xl font-semibold transition-colors duration-300 group-hover:text-primary-ink">{item.name}</h3>
