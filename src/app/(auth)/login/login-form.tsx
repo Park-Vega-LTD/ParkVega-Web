@@ -78,11 +78,14 @@ function LoginFormInner() {
 
   return (
     <div className="space-y-6">
-      <div className="space-y-2 text-center">
-        <h1 className="font-display text-2xl font-semibold tracking-tight">
+      <div className="space-y-2">
+        <p className="text-sm font-bold uppercase tracking-wider text-primary-ink">
+          Park Vega account
+        </p>
+        <h1 className="font-display text-3xl font-bold tracking-tight">
           Welcome back
         </h1>
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground">
           Sign in to manage your bookings and plan your day.
         </p>
       </div>
@@ -100,6 +103,7 @@ function LoginFormInner() {
                     type="email"
                     autoComplete="email"
                     placeholder="you@example.com"
+                    className="h-12 rounded-xl bg-background px-4 md:text-base"
                     {...field}
                   />
                 </FormControl>
@@ -119,6 +123,7 @@ function LoginFormInner() {
                     type="password"
                     autoComplete="current-password"
                     placeholder="••••••••"
+                    className="h-12 rounded-xl bg-background px-4 md:text-base"
                     {...field}
                   />
                 </FormControl>

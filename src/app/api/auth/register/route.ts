@@ -60,6 +60,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ user }, { status: 201 })
     }
 
+    if (apiRes.status >= 400 && apiRes.status < 500) {
+      // Validation (422), rate limit (429) and similar: the API's message says
+      // what to fix, so pass it on instead of a bare "Registration failed."
+      const failure = await apiRes.json().catch(() => ({}))
+      console.error('[auth/register] API rejected registration', apiRes.status, failure.message)
+      return NextResponse.json(
+        {
+          message:
+            typeof failure.message === 'string' && failure.message
+              ? failure.message
+              : 'Registration failed. Please check your details and try again.',
+        },
+        { status: apiRes.status }
+      )
+    }
+
+    console.error('[auth/register] API error', apiRes.status)
     return NextResponse.json({ message: 'Registration failed.' }, { status: 500 })
   } catch {
     return NextResponse.json({ message: 'Registration failed.' }, { status: 500 })
