@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Cake,
   Check,
+  Clock,
   Hash,
   LifeBuoy,
   Lock,
@@ -13,8 +14,10 @@ import {
   Navigation,
   School,
   ShieldCheck,
+  Shirt,
   Ticket,
   Umbrella,
+  UsersRound,
   UtensilsCrossed,
   Waves,
   type LucideIcon,
@@ -23,7 +26,7 @@ import {
 import { SectionHeading } from "@/components/parkvega/page-hero";
 import { AttractionVideo } from "@/components/parkvega/home/attraction-video";
 import { VideoShorts } from "@/components/parkvega/home/video-shorts";
-import { ReviewsGrid } from "@/components/parkvega/reviews-grid";
+import { ReviewsCarousel } from "@/components/parkvega/reviews-carousel";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
@@ -148,20 +151,23 @@ export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
     { who: "Kids under 90cm", price: "Free" },
     { who: "Private cabana · seats 12", price: "Book ahead" },
   ];
-  const essentials = [
-    `Open ${OPEN_DAYS_SHORT}, ${OPEN_HOURS}`,
-    "Swimwear required on all slides – no jewellery on rides",
-    "Children under 150cm must be with an adult",
-    "Non-swimmers must use life jackets or tubes and stay in the shallow end",
+  const essentials: { icon: LucideIcon; text: string }[] = [
+    { icon: Clock, text: `Open ${OPEN_DAYS_SHORT}, ${OPEN_HOURS}` },
+    { icon: Shirt, text: "Swimwear required on all slides – no jewellery on rides" },
+    { icon: UsersRound, text: "Children under 150cm must be with an adult" },
+    { icon: LifeBuoy, text: "Non-swimmers must use life jackets or tubes and stay in the shallow end" },
   ];
   return (
     <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
       <div>
         <SectionHeading eyebrow="Plan your visit" title="Everything you need for a perfect day." />
         <ul className="mt-8 grid gap-3">
-          {essentials.map((line, i) => (
-            <li key={line} data-reveal style={stagger(i)} className="flex items-start gap-3 text-sm">
-              <Check className="mt-0.5 size-5 shrink-0 text-primary-ink" /> {line}
+          {essentials.map(({ icon: Icon, text }, i) => (
+            <li key={text} data-reveal style={stagger(i)} className="group flex items-center gap-4 text-sm sm:text-base">
+              <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ocean-soft text-primary-ink ring-1 ring-primary/20 transition-[rotate,scale,background-color] duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-primary/20">
+                <Icon className="size-5" />
+              </span>
+              {text}
             </li>
           ))}
         </ul>
@@ -376,16 +382,65 @@ export function GettingHereSection() {
   );
 }
 
+/** Real Park Vega photo behind the videos band. */
+const VIDEOS_BACKDROP =
+  "https://res.cloudinary.com/rlenhslv/image/upload/v1794922625/parkvega/site/photos/heroes/plan-your-visit.jpg";
+
 export function VideosSection() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
-      <SectionHeading
-        eyebrow="Watch"
-        title="See the park in action."
-        description="Tap a video to play it."
-      />
-      <div className="mt-9">
-        <VideoShorts videos={PARK_VIDEOS} />
+    <section aria-labelledby="videos-title" className="px-3 py-10 sm:px-6 sm:py-14">
+      <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-deep">
+        <Image src={VIDEOS_BACKDROP} alt="" fill sizes="100vw" className="object-cover" />
+        {/* Darker on the text side, lighter behind the videos so the park shows through. */}
+        <div
+          aria-hidden="true"
+          className="absolute inset-0 bg-gradient-to-b from-deep/90 via-deep/70 to-deep/40 lg:bg-gradient-to-r lg:from-deep/95 lg:via-deep/70 lg:to-deep/20"
+        />
+        <Bubbles />
+
+        <div className="relative grid items-center gap-10 px-5 py-12 sm:px-10 sm:py-16 lg:grid-cols-[1fr_1.15fr] lg:gap-12 lg:px-14">
+          <div>
+            <span data-reveal className="text-xs font-extrabold uppercase tracking-wide text-secondary">
+              Watch · filmed at Park Vega
+            </span>
+            <h2
+              id="videos-title"
+              data-reveal
+              style={stagger(1)}
+              className="mt-3 text-balance text-[2rem] font-bold leading-tight text-hero-foreground sm:text-5xl"
+            >
+              See the park in action.
+            </h2>
+            <p data-reveal style={stagger(2)} className="mt-4 max-w-md text-base leading-relaxed text-hero-foreground/80 sm:text-lg">
+              Real guests, real splashes. Ride the slides and float the waves before you even get here – tap a video
+              to play it.
+            </p>
+            <ul data-reveal style={stagger(3)} className="mt-6 flex flex-wrap gap-2">
+              {["15 attractions", "Unlimited rides", "Fun for every age"].map((chip) => (
+                <li
+                  key={chip}
+                  className="rounded-full border border-hero-foreground/25 bg-hero-foreground/10 px-3 py-1.5 text-xs font-bold text-hero-foreground backdrop-blur-md"
+                >
+                  {chip}
+                </li>
+              ))}
+            </ul>
+            <div data-reveal style={stagger(4)} className="mt-8 flex flex-wrap gap-3">
+              <Button asChild variant="ticket">
+                <Link href="/tickets">
+                  <Ticket className="size-4" /> Buy Tickets
+                </Link>
+              </Button>
+              <Button asChild variant="glass">
+                <Link href="/attractions">
+                  All attractions <ArrowRight className="size-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
+
+          <VideoShorts videos={PARK_VIDEOS} />
+        </div>
       </div>
     </section>
   );
@@ -393,10 +448,16 @@ export function VideosSection() {
 
 export function ReviewsSection() {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
-      <SectionHeading eyebrow="Google reviews" title="Loved by families across Nigeria." />
-      <div className="mt-9">
-        <ReviewsGrid />
+    <section className="overflow-hidden py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6">
+        <SectionHeading
+          eyebrow="Google reviews"
+          title="Loved by families across Nigeria."
+          description="Real words from real guests, straight from our Google reviews."
+        />
+      </div>
+      <div className="mt-7">
+        <ReviewsCarousel />
       </div>
     </section>
   );

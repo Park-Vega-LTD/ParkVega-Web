@@ -293,26 +293,57 @@ const SOCIAL_ICONS = { youtube: YouTubeIcon, instagram: InstagramIcon, facebook:
 const footerLinkClass = "w-fit font-medium text-hero-foreground transition-colors hover:text-primary";
 const footerHeadingClass = "font-sans text-sm font-bold uppercase tracking-[0.18em] text-coral";
 
-/** Sand, surf and a floating ring and ball: the band where the page meets the footer. */
+/**
+ * A wave line that repeats every `period` units across 2880 (two screen widths
+ * of 1440), so sliding it by half its width loops without a seam.
+ */
+function wavePath(y: number, amp: number, period: number) {
+  let d = `M0 ${y} Q ${period / 4} ${y + amp} ${period / 2} ${y}`;
+  for (let x = period; x <= 2880; x += period / 2) d += ` T ${x} ${y}`;
+  return `${d} V100 H0Z`;
+}
+
+/** Water layers, back to front: each flows at its own speed, alternating direction. */
+const WAVE_LAYERS = [
+  { d: wavePath(20, 9, 720), fill: "fill-primary", flow: "wave-flow-right", duration: "22s" },
+  { d: wavePath(64, 11, 960), fill: "fill-primary-ink", flow: "wave-flow-left", duration: "16s" },
+  { d: wavePath(86, 5, 480), fill: "fill-deep", flow: "wave-flow-right", duration: "11s" },
+];
+
+const BUBBLES = [
+  { position: "left-[20%] top-[8%] size-3", delay: "0s" },
+  { position: "left-[31%] top-[38%] size-2.5", delay: "1.4s" },
+  { position: "left-[64%] top-[72%] size-2", delay: "2.6s" },
+  { position: "left-[86%] top-[30%] size-2.5", delay: "0.8s" },
+  { position: "left-[48%] top-[60%] size-1.5", delay: "3.3s" },
+];
+
+/** Sand, flowing surf and a bobbing ring and ball: the band where the page meets the footer. */
 function FooterWaves() {
-  return <div className="relative h-16 overflow-hidden sm:h-24" aria-hidden="true">
-    <svg viewBox="0 0 1440 100" preserveAspectRatio="none" className="absolute inset-0 size-full">
-      <rect width="1440" height="100" className="fill-accent" />
-      <path d="M0 18 C 180 30 360 8 540 20 S 900 30 1080 16 S 1320 8 1440 20 V100 H0Z" className="fill-primary" />
-      <path d="M0 62 C 200 82 380 50 600 66 S 980 84 1180 62 S 1380 56 1440 66 V100 H0Z" className="fill-primary-ink" />
-      <path d="M0 84 C 240 96 480 78 720 88 S 1200 98 1440 84 V100 H0Z" className="fill-deep" />
-      <circle cx="290" cy="6" r="7" fill="#fff" opacity=".9" /><circle cx="450" cy="32" r="6" fill="#fff" opacity=".35" />
-      <circle cx="925" cy="70" r="4" fill="#fff" opacity=".6" /><circle cx="1455" cy="4" r="6" fill="#fff" opacity=".9" />
-    </svg>
-    <svg viewBox="0 0 120 52" className="absolute left-[40%] top-[12%] w-16 sm:w-28">
-      <ellipse cx="60" cy="26" rx="58" ry="24" fill="#FF6B1A" /><ellipse cx="60" cy="26" rx="28" ry="11" className="fill-primary-ink" />
-      <path d="M44 4h32v10H44zM44 38h32v10H44z" fill="#fff" />
-    </svg>
-    <svg viewBox="0 0 40 40" className="absolute left-[65.5%] top-[18%] w-7 sm:w-11">
-      <circle cx="20" cy="20" r="19" fill="#fff" />
-      <path d="M20 20V1a19 19 0 0 1 19 19z" fill="#FF6B1A" /><path d="M20 20h19a19 19 0 0 1-19 19z" className="fill-accent" />
-      <path d="M20 20v19A19 19 0 0 1 1 20z" fill="#1E88E5" />
-    </svg>
+  return <div className="relative h-16 overflow-hidden bg-accent sm:h-24" aria-hidden="true">
+    {WAVE_LAYERS.map(({ d, fill, flow, duration }) => (
+      <div key={d} className={`${flow} absolute inset-y-0 left-0 w-[200%]`} style={{ animationDuration: duration }}>
+        <svg viewBox="0 0 2880 100" preserveAspectRatio="none" className="size-full">
+          <path d={d} className={fill} />
+        </svg>
+      </div>
+    ))}
+    {BUBBLES.map(({ position, delay }) => (
+      <span key={position} className={`bubble-rise absolute rounded-full bg-white/70 ${position}`} style={{ animationDelay: delay }} />
+    ))}
+    <div className="float-bob absolute left-[40%] top-[12%] w-16 sm:w-28">
+      <svg viewBox="0 0 120 52" className="w-full">
+        <ellipse cx="60" cy="26" rx="58" ry="24" fill="#FF6B1A" /><ellipse cx="60" cy="26" rx="28" ry="11" className="fill-primary-ink" />
+        <path d="M44 4h32v10H44zM44 38h32v10H44z" fill="#fff" />
+      </svg>
+    </div>
+    <div className="float-bob absolute left-[65.5%] top-[18%] w-7 sm:w-11" style={{ animationDelay: "-1.6s", animationDuration: "3.6s" }}>
+      <svg viewBox="0 0 40 40" className="ball-roll w-full">
+        <circle cx="20" cy="20" r="19" fill="#fff" />
+        <path d="M20 20V1a19 19 0 0 1 19 19z" fill="#FF6B1A" /><path d="M20 20h19a19 19 0 0 1-19 19z" className="fill-accent" />
+        <path d="M20 20v19A19 19 0 0 1 1 20z" fill="#1E88E5" />
+      </svg>
+    </div>
   </div>;
 }
 

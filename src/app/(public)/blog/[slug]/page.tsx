@@ -9,7 +9,8 @@ import { SectionHeading } from "@/components/parkvega/page-hero";
 import { RichText } from "@/components/parkvega/rich-text";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
-import { ApiError, publicFetch } from "@/lib/api.server";
+import { ContentUnavailable } from "@/components/parkvega/content-unavailable";
+import { ApiError, isBuildPhase, publicFetch } from "@/lib/api.server";
 import { excerptOf, isPublished, postDate, readMinutes, truncate } from "@/lib/blog";
 import { SITE_URL } from "@/lib/site";
 import type { ContentPage } from "@/types/api";
@@ -69,6 +70,17 @@ export default async function BlogPostPage({ params }: PageProps) {
     // the Next.js not-found page (Requirements 4.9, 4.11).
     if (err instanceof ApiError && err.status === 404) {
       notFound();
+    }
+    // Don't let one failed fetch abort `next build`; ISR replaces this page
+    // on a later request.
+    if (isBuildPhase()) {
+      return (
+        <ContentUnavailable
+          title="This post is temporarily unavailable."
+          backHref="/blog"
+          backLabel="Back to the blog"
+        />
+      );
     }
     // Any other error bubbles up to the route's error boundary (Requirement 4.12).
     throw err;

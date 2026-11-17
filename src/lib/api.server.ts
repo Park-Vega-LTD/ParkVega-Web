@@ -1,5 +1,6 @@
 import { cache } from 'react'
 import { cookies, headers } from 'next/headers'
+import { PHASE_PRODUCTION_BUILD } from 'next/constants'
 import { API_URL } from '@/lib/api-url'
 import { forwardedFor } from '@/lib/forwarded'
 import { ACCESS_COOKIE } from '@/lib/session-cookies'
@@ -72,7 +73,7 @@ export async function publicFetch<T>(path: string, options?: RequestInit): Promi
   })
 
   try {
-    return await Promise.race([apiFetch<T>(path, options), timeout])
+    return await Promise.race([fetchWithRetry<T>(path, options), timeout])
   } catch (err) {
     // An HTTP error means the API answered; only a network failure or a
     // timeout (both TypeError) marks it as down.
@@ -85,6 +86,41 @@ export async function publicFetch<T>(path: string, options?: RequestInit): Promi
     clearTimeout(timer)
   }
 }
+
+/**
+ * A 5xx on a read is usually a momentary backend failure (the API currently
+ * returns intermittent 500s when several attraction requests arrive at once,
+ * as they do while `next build` pre-renders pages in parallel). A GET is
+ * retried a couple of times with a randomised pause, so parallel callers
+ * don't collide again, before the error reaches the page. The caller's
+ * PUBLIC_TIMEOUT_MS still bounds the total wait.
+ */
+async function fetchWithRetry<T>(path: string, options?: RequestInit): Promise<T> {
+  const method = (options?.method ?? 'GET').toUpperCase()
+  for (let attempt = 1; ; attempt++) {
+    try {
+      return await apiFetch<T>(path, options)
+    } catch (err) {
+      const retryable = err instanceof ApiError && err.status >= 500 && method === 'GET'
+      if (!retryable || attempt >= RETRY_ATTEMPTS) throw err
+      const delay = RETRY_BASE_DELAY_MS * attempt + Math.random() * RETRY_BASE_DELAY_MS
+      await new Promise((resolve) => setTimeout(resolve, delay))
+    }
+  }
+}
+
+/**
+ * True while `next build` pre-renders pages. At request time a failed ISR
+ * regeneration keeps serving the last good page, so pages should throw; at
+ * build time there is no last good page and a throw aborts the whole build,
+ * so pages render a "temporarily unavailable" state instead.
+ */
+export function isBuildPhase(): boolean {
+  return process.env.NEXT_PHASE === PHASE_PRODUCTION_BUILD
+}
+
+const RETRY_ATTEMPTS = 3
+const RETRY_BASE_DELAY_MS = 200
 
 /**
  * Public pages fall back to built-in content when the API fails, so a slow or

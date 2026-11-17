@@ -1,11 +1,13 @@
+import Image from "next/image";
 import type { Metadata } from "next";
-import { Bus, Car, Clock3, Landmark, MapPin, Navigation } from "lucide-react";
+import { Bus, Car, Clock3, Expand, Landmark, Map as MapIcon, MapPin, Navigation } from "lucide-react";
 
 import { FaqBlock } from "@/components/parkvega/faq-block";
 import { PageHero } from "@/components/parkvega/page-hero";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { getSpotPhoto } from "@/lib/public-data";
+import { DEFAULT_HERO_PHOTOS } from "@/lib/site-photos";
 import { ADDRESS, MAPS_URL, directionsUrl } from "@/lib/site";
 import { CITY_DIRECTIONS } from "@/lib/visit-content";
 
@@ -17,7 +19,7 @@ const DESCRIPTION =
   "How to get to Park Vega Waterpark in Agbor from Benin City, Asaba, Warri and Onitsha: driving routes, travel times, landmarks, buses and maps.";
 
 /** The `directions/hero` photo staff chose, or null when none is set. */
-const getHero = () => getSpotPhoto("directions", "hero");
+const getHero = async () => (await getSpotPhoto("directions", "hero")) ?? DEFAULT_HERO_PHOTOS.directions;
 
 export async function generateMetadata(): Promise<Metadata> {
   const hero = await getHero();
@@ -31,6 +33,27 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const DESTINATION = "Park Vega Waterpark, Agbor, Delta State";
+
+const PARK_MAP = {
+  src: "https://res.cloudinary.com/rlenhslv/image/upload/v1794922273/parkvega/site/photos/park-map.jpg",
+  width: 1929,
+  height: 2000,
+};
+
+/** Numbered spots on the park map, in the map's own numbering. */
+const MAP_LEGEND: { name: string; note: string; href?: string }[] = [
+  { name: "Car park", note: "Park close to the entrance" },
+  { name: "Entrance building", note: "Show your ticket QR code here" },
+  { name: "Food station", note: "Snacks and drinks between rides", href: "/restaurants" },
+  { name: "Swim-up bar", note: "Drinks without leaving the water" },
+  { name: "Wave pool", note: "Ocean-style waves for all ages", href: "/attractions" },
+  { name: "Cabanas", note: "Private shade for up to 12 guests", href: "/services#cabanas" },
+  { name: "Water slides", note: "Our tallest thrill slides", href: "/attractions" },
+  { name: "Flavor Grill Restaurant", note: "Full meals, served all day", href: "/restaurants" },
+  { name: "Activity pool", note: "Floats, games and splashing", href: "/attractions" },
+  { name: "Aqua Tower", note: "50-feature kids' play tower", href: "/attractions" },
+  { name: "Splash pad", note: "Zero-depth fun for little ones", href: "/attractions" },
+];
 
 /** Keyless Google Maps route embed. */
 function embedUrl(origin: string) {
@@ -140,6 +163,79 @@ export default async function DirectionsPage() {
           </div>
         </section>
       ))}
+
+      <section
+        id="park-map"
+        aria-labelledby="park-map-title"
+        className={`scroll-mt-24 py-16 ${CITY_DIRECTIONS.length % 2 === 1 ? "bg-ocean-soft/50" : ""}`}
+      >
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 sm:px-6 lg:grid-cols-12 lg:items-start">
+          <div className="lg:col-span-7">
+            <a
+              href={PARK_MAP.src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group relative block overflow-hidden rounded-3xl border border-border bg-card"
+            >
+              <Image
+                src={PARK_MAP.src}
+                alt="Illustrated map of Park Vega Waterpark showing the car park, entrance, pools, slides, cabanas, restaurants and kids' areas, numbered 1 to 11"
+                width={PARK_MAP.width}
+                height={PARK_MAP.height}
+                sizes="(max-width: 1024px) 100vw, 58vw"
+                className="h-auto w-full transition-[scale] duration-500 ease-out group-hover:scale-[1.02]"
+              />
+              <span className="absolute right-4 top-4 flex items-center gap-1.5 rounded-full bg-card/95 px-3 py-1.5 text-xs font-bold shadow-[var(--shadow-card)] ring-1 ring-border">
+                <Expand className="size-3.5 text-primary-ink" /> Full size
+              </span>
+            </a>
+          </div>
+
+          <div className="lg:sticky lg:top-24 lg:col-span-5">
+            <span className="block text-sm font-bold uppercase tracking-wide text-primary-ink">Once you&apos;re here</span>
+            <h2 id="park-map-title" className="mt-2 text-3xl font-semibold sm:text-4xl">
+              Find your way around the park.
+            </h2>
+            <p className="mt-3 text-muted-foreground">
+              Park at the front, walk through the entrance building and the whole park opens up in front of you.
+            </p>
+            <ol className="mt-7 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+              {MAP_LEGEND.map(({ name, note, href }, index) => {
+                const body = (
+                  <>
+                    <span className="grid size-8 shrink-0 place-items-center rounded-full bg-destructive font-display text-sm font-bold text-white ring-2 ring-white">
+                      {index + 1}
+                    </span>
+                    <span>
+                      <span className="block font-semibold leading-tight">{name}</span>
+                      <span className="text-xs text-muted-foreground">{note}</span>
+                    </span>
+                  </>
+                );
+                const itemClass = "flex items-center gap-3 rounded-2xl border border-border bg-card p-3";
+                return (
+                  <li key={name}>
+                    {href ? (
+                      <a href={href} className={`${itemClass} transition-colors hover:border-primary`}>
+                        {body}
+                      </a>
+                    ) : (
+                      <div className={itemClass}>{body}</div>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+            <div className="mt-6 flex flex-wrap gap-3">
+              <Button asChild variant="outline">
+                <a href={PARK_MAP.src} target="_blank" rel="noopener noreferrer">
+                  <MapIcon className="size-4" /> Open the park map
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="mx-auto max-w-7xl px-4 pb-4 sm:px-6">
         <div className="flex flex-col items-start justify-between gap-4 rounded-3xl bg-deep p-6 text-hero-foreground sm:flex-row sm:items-center sm:p-8">

@@ -9,6 +9,7 @@ import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
 import { ReviewsGrid } from "@/components/parkvega/reviews-grid";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { getPageImages, spotPhotos } from "@/lib/public-data";
+import { DEFAULT_HERO_PHOTOS } from "@/lib/site-photos";
 import { BIRTHDAY_PACKAGES } from "@/lib/visit-content";
 
 // ISR: regenerate at most once every 60 seconds (Requirement 4.1).
@@ -22,7 +23,7 @@ const DESCRIPTION =
 async function getPhotos() {
   const images = await getPageImages("birthday-parties");
   return {
-    hero: spotPhotos(images, "hero")[0] ?? null,
+    hero: spotPhotos(images, "hero")[0] ?? DEFAULT_HERO_PHOTOS["birthday-parties"],
     gallery: spotPhotos(images, "gallery"),
   };
 }

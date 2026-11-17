@@ -4,6 +4,7 @@ import { ArrowRight } from "lucide-react";
 
 import { EventCard } from "@/components/parkvega/event-card";
 import { Billboard } from "@/components/parkvega/home/billboard";
+import { ServicesSection } from "@/components/parkvega/home/services-section";
 import {
   AttractionsSection,
   CelebrateSection,
@@ -112,6 +113,8 @@ export default async function HomePage() {
     .filter((image) => image.slot === "hero")
     .sort((a, b) => a.position - b.position);
   const [restaurantPhoto = null] = spotPhotos(homeImages, "restaurant");
+  // One photo per service group, in order: comfort, dining, safety, tools.
+  const servicePhotos = spotPhotos(homeImages, "services");
 
   const activeAttractions = attractions
     .filter((attraction) => attraction.status === "ACTIVE")
@@ -135,6 +138,7 @@ export default async function HomePage() {
       <Billboard fromPrice={fromPrice} settings={settings} heroImages={heroImages} />
       <WhyParkVega />
       <AttractionsSection items={attractionHighlights} />
+      <ServicesSection photos={servicePhotos} />
       <VideosSection />
       <VisitorInfoCards fromPrice={fromPrice} />
       <PlanYourVisitSection fromPrice={fromPrice} />

@@ -32,6 +32,7 @@ import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { publicFetch } from "@/lib/api.server";
+import { DEFAULT_HERO_PHOTOS } from "@/lib/site-photos";
 import { getPageImages, publicFetchOpts, spotPhotos } from "@/lib/public-data";
 import {
   CABANA_FEATURES,
@@ -58,7 +59,7 @@ async function getPhotos() {
   const images = await getPageImages("services");
   const groupPhotos = spotPhotos(images, "groups");
   return {
-    hero: spotPhotos(images, "hero")[0] ?? null,
+    hero: spotPhotos(images, "hero")[0] ?? DEFAULT_HERO_PHOTOS.services,
     cabana: spotPhotos(images, "cabanas")[0] ?? null,
     groupOffers: GROUP_OFFERS.map((offer, index) => ({ ...offer, photo: groupPhotos[index] ?? null })),
   };

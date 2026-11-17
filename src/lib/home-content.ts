@@ -136,6 +136,6 @@ export const PROHIBITED_ITEMS = [
  * the YouTube link after `/shorts/`. Add or remove entries to change the videos.
  */
 export const PARK_VIDEOS = [
-  { id: "0lGxolhIYxI", title: "Slides. Waves. Smiles." },
-  { id: "rF4kpE23AeE", title: "Your kind of fun" },
-];
+  { id: "0lGxolhIYxI", title: "Slides. Waves. Smiles.", badge: "Thrill slides", tone: "lime" },
+  { id: "rF4kpE23AeE", title: "Your kind of fun", badge: "Wave pool", tone: "coral" },
+] as const;

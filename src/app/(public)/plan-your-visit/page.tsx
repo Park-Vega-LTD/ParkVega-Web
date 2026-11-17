@@ -20,13 +20,12 @@ import { ParkRulesList, ProhibitedItemsGrid } from "@/components/parkvega/park-r
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { publicFetch } from "@/lib/api.server";
-import { getFromPrice, getSpotPhoto, getTicketProducts, publicFetchOpts } from "@/lib/public-data";
+import { DEFAULT_HERO_PHOTOS } from "@/lib/site-photos";
+import { getFromPrice, getSiteSettings, getSpotPhoto, getTicketProducts, publicFetchOpts } from "@/lib/public-data";
 import { waterParkSchema } from "@/lib/schema";
 import {
   ADDRESS,
   MAPS_URL,
-  OPEN_DAYS_LONG,
-  OPEN_HOURS,
   formatNaira,
   whatsappUrl,
 } from "@/lib/site";
@@ -48,7 +47,7 @@ const DESCRIPTION =
   "Park Vega ticket prices, opening hours, what to wear, food policy, safety rules, add-ons and directions to Agbor, Delta State. Everything before you go.";
 
 /** The `plan-your-visit/hero` photo staff chose, or null when none is set. */
-const getHero = () => getSpotPhoto("plan-your-visit", "hero");
+const getHero = async () => (await getSpotPhoto("plan-your-visit", "hero")) ?? DEFAULT_HERO_PHOTOS["plan-your-visit"];
 
 // Per Requirement 5.1, every page exports a `generateMetadata()` function
 // returning a unique title (<= 60 chars) and description (<= 160 chars).
@@ -120,14 +119,17 @@ export default async function PlanYourVisitPage() {
 
   // Fetch CMS content and ticket products in parallel. A single failure
   // degrades gracefully so the page still renders.
-  const [page, products, fromPrice, hero] = await Promise.all([
+  const [page, products, fromPrice, hero, settings] = await Promise.all([
     publicFetch<ContentPage>("/content/pages/plan-your-visit", publicFetchOpts).catch(
       () => null,
     ),
     getTicketProducts(),
     getFromPrice(),
     getHero(),
+    getSiteSettings(),
   ]);
+  // Opening days and hours come from Admin → Settings.
+  const openLine = `${settings.opening_days}, ${settings.opening_hours}`;
 
   const paragraphs = page?.body ? toParagraphs(page.body) : [];
   const priced = productPriceRows(products, today);
@@ -144,7 +146,7 @@ export default async function PlanYourVisitPage() {
       <PageHero
         eyebrow="Before you set out"
         title={page?.title ?? "Plan your visit to Park Vega."}
-        description={`Tickets from ${formatNaira(fromPrice)}. Open ${OPEN_DAYS_LONG}, ${OPEN_HOURS}. Here's everything you need for a smooth splash day.`}
+        description={`Tickets from ${formatNaira(fromPrice)}. Open ${openLine}. Here's everything you need for a smooth splash day.`}
         image={hero?.src}
         imageAlt={hero?.alt}
       />
@@ -291,7 +293,7 @@ export default async function PlanYourVisitPage() {
             ))}
           </ol>
           <p className="mt-8 flex items-center gap-2 text-sm text-hero-foreground/80">
-            <Clock3 className="size-4 text-secondary" /> Open {OPEN_DAYS_LONG}, {OPEN_HOURS}
+            <Clock3 className="size-4 text-secondary" /> Open {openLine}
           </p>
         </div>
       </section>

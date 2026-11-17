@@ -3,8 +3,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CalendarClock, Gauge, Ruler, ShieldCheck, Users } from "lucide-react";
 
+import { ContentUnavailable } from "@/components/parkvega/content-unavailable";
 import { SectionHeading } from "@/components/parkvega/page-hero";
-import { ApiError, publicFetch } from "@/lib/api.server";
+import { ApiError, isBuildPhase, publicFetch } from "@/lib/api.server";
 import { safetyList } from "@/lib/attractions";
 import { getAttractionFallbackImage } from "@/lib/public-data";
 import type { Attraction } from "@/types/api";
@@ -101,6 +102,17 @@ export default async function AttractionDetailPage({ params }: PageProps) {
     // Next.js not-found page (Requirement 4.4).
     if (err instanceof ApiError && err.status === 404) {
       notFound();
+    }
+    // Don't let one failed fetch abort `next build`; ISR replaces this page
+    // on a later request. At request time, throw so ISR keeps the last good page.
+    if (isBuildPhase()) {
+      return (
+        <ContentUnavailable
+          title="This attraction is temporarily unavailable."
+          backHref="/attractions"
+          backLabel="See all attractions"
+        />
+      );
     }
     throw err;
   }

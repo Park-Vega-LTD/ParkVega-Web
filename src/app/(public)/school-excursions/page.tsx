@@ -7,6 +7,7 @@ import { PackageCards } from "@/components/parkvega/package-cards";
 import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { getSpotPhoto } from "@/lib/public-data";
+import { DEFAULT_HERO_PHOTOS } from "@/lib/site-photos";
 import { SCHOOL_PRICING, SCHOOL_SAFETY, TEACHER_CHECKLIST } from "@/lib/visit-content";
 
 // ISR: regenerate at most once every 60 seconds (Requirement 4.1).
@@ -17,7 +18,7 @@ const DESCRIPTION =
   "Plan a safe, fun school excursion to Park Vega Waterpark in Agbor: group pricing for 20+, lifeguards, kids' pools and a teacher checklist. Book on WhatsApp.";
 
 /** The `school-excursions/hero` photo staff chose, or null when none is set. */
-const getHero = () => getSpotPhoto("school-excursions", "hero");
+const getHero = async () => (await getSpotPhoto("school-excursions", "hero")) ?? DEFAULT_HERO_PHOTOS["school-excursions"];
 
 export async function generateMetadata(): Promise<Metadata> {
   const hero = await getHero();

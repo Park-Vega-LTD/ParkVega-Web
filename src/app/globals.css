@@ -231,6 +231,43 @@
   .card-lift:hover { translate: 0 -6px; box-shadow: var(--shadow-card); }
   .card-lift:hover img { transform: scale(1.06); }
 
+  /* Reviews marquee: an endless track sliding left to right (see ReviewsCarousel). */
+  @keyframes marquee-right {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
+  .marquee-right { animation: marquee-right 60s linear infinite; }
+  .group\/marquee:hover .marquee-right,
+  .group\/marquee:focus-within .marquee-right,
+  [data-paused] .marquee-right { animation-play-state: paused; }
+
+  /* Footer water band: flowing wave layers, a bobbing ring and ball, rising bubbles. */
+  @keyframes wave-flow-left {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  @keyframes wave-flow-right {
+    from { transform: translateX(-50%); }
+    to { transform: translateX(0); }
+  }
+  .wave-flow-left { animation: wave-flow-left 16s linear infinite; }
+  .wave-flow-right { animation: wave-flow-right 20s linear infinite; }
+  @keyframes float-bob {
+    0%, 100% { transform: translate(0, 0) rotate(-4deg); }
+    50% { transform: translate(6px, 5px) rotate(4deg); }
+  }
+  .float-bob { animation: float-bob 3s ease-in-out infinite; }
+  @keyframes ball-roll {
+    to { transform: rotate(360deg); }
+  }
+  .ball-roll { animation: ball-roll 9s linear infinite; }
+  @keyframes bubble-rise {
+    0% { opacity: 0; transform: translateY(8px) scale(0.6); }
+    30% { opacity: 0.9; }
+    100% { opacity: 0; transform: translateY(-22px) scale(1.1); }
+  }
+  .bubble-rise { animation: bubble-rise 4s ease-in infinite backwards; }
+
   /* Homepage hero carousel: a slow push-in on the active photo, and its words rising in. */
   @keyframes hero-zoom {
     from { transform: scale(1.12); }
