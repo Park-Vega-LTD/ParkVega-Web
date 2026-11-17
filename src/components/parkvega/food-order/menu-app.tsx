@@ -62,15 +62,13 @@ const PLACEHOLDER_TONES = [
   "from-rose-100 to-orange-50 text-rose-600",
 ];
 
-const POPULAR = "Popular";
-
 function categoryIcon(category: string) {
   return CATEGORY_ICONS.find(([pattern]) => pattern.test(category))?.[1] ?? UtensilsCrossed;
 }
 
-/** Section icon; "Popular" gets the flame. */
+/** Section icon. */
 function CategoryIcon({ category, className, strokeWidth }: { category: string; className?: string; strokeWidth?: number }) {
-  return createElement(category === POPULAR ? Flame : categoryIcon(category), { className, strokeWidth, "aria-hidden": true });
+  return createElement(categoryIcon(category), { className, strokeWidth, "aria-hidden": true });
 }
 
 function slug(value: string) {
@@ -98,19 +96,19 @@ export function MenuApp({ menus }: { menus: RestaurantMenu[] }) {
   const current = menus.find((menu) => menu.restaurant.id === restaurantId) ?? menus[0];
   const items = useMemo(() => current?.items ?? [], [current]);
 
+  // One section per menu category, as stored in the database, so every dish
+  // appears exactly once. Popular dishes are marked with a badge on their card.
   const sections = useMemo(() => {
     const categories = Array.from(new Set(items.map((item) => item.category)));
-    const popular = items.filter((item) => item.popular && item.active);
-    const grouped = categories.map((category) => ({
+    return categories.map((category) => ({
       category,
       items: items.filter((item) => item.category === category),
     }));
-    return popular.length >= 2 ? [{ category: POPULAR, items: popular }, ...grouped] : grouped;
   }, [items]);
 
   const results = query.trim() ? items.filter((item) => matches(item, query)) : null;
   const tones = useMemo(
-    () => new Map(sections.filter((s) => s.category !== POPULAR).map((s, i) => [s.category, PLACEHOLDER_TONES[i % PLACEHOLDER_TONES.length]])),
+    () => new Map(sections.map((s, i) => [s.category, PLACEHOLDER_TONES[i % PLACEHOLDER_TONES.length]])),
     [sections],
   );
 
@@ -252,10 +250,10 @@ export function MenuApp({ menus }: { menus: RestaurantMenu[] }) {
                 return (
                   <section key={category} id={`menu-${slug(category)}`} data-category={category}>
                     <h2 className="flex items-center gap-2.5 text-2xl font-bold">
-                      <span className={cn("grid size-9 place-items-center rounded-xl", category === POPULAR ? "bg-accent text-accent-foreground" : "bg-card text-primary-ink shadow-sm")}>
+                      <span className="grid size-9 place-items-center rounded-xl bg-card text-primary-ink shadow-sm">
                         <CategoryIcon category={category} className="size-5" />
                       </span>
-                      {category === POPULAR ? "Popular right now" : category}
+                      {category}
                       <span className="text-sm font-semibold text-muted-foreground">{sectionItems.length}</span>
                     </h2>
                     <div className="mt-4">

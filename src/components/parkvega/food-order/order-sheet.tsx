@@ -131,6 +131,7 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
   const [sending, setSending] = useState(false);
   const [phoneError, setPhoneError] = useState<string>();
   const [whatsappFallback, setWhatsappFallback] = useState<string | null>(null);
+  const [orderError, setOrderError] = useState<string>();
   const [openDates] = useState(() => upcomingOpenDates(extraOpenDates));
 
   useEffect(() => {
@@ -152,6 +153,7 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
       return;
     }
     setPhoneError(undefined);
+    setOrderError(undefined);
     setSending(true);
 
     try {
@@ -179,7 +181,19 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
         resetSession();
         return;
       }
-      if (!res.ok) throw new Error(`Order failed (${res.status})`);
+      if (!res.ok) {
+        // A problem with the order itself (sold out, closed date, time passed…):
+        // show the API's reason so the visitor can fix it. Only server or
+        // network failures fall back to WhatsApp.
+        if (res.status < 500) {
+          const problem = (await res.json().catch(() => null)) as { message?: string } | null;
+          if (problem?.message) {
+            setOrderError(problem.message);
+            return;
+          }
+        }
+        throw new Error(`Order failed (${res.status})`);
+      }
       const body = await res.json();
       const created: CreatedOrder = body?.data ?? body;
       cart.placed({
@@ -347,12 +361,17 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
                     </Label>
                     <Textarea id="food-notes" name="notes" rows={2} placeholder="Allergies, no pepper, extra sauce…" className="text-base md:text-base" />
                   </div>
+                  {orderError && (
+                    <p role="alert" className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                      {orderError}
+                    </p>
+                  )}
                   <Button type="submit" variant="ticket" size="lg" disabled={sending || lines.length === 0}>
                     {sending && <Loader2 className="size-5 animate-spin" />}
                     Pay {formatNaira(total)}
                   </Button>
                   <p className="text-center text-xs text-muted-foreground">
-                    You&apos;ll pay securely online with Flutterwave. Pickup in person only; your order reference is sent to WhatsApp.
+                    You&apos;ll pay securely online. Pickup in person only; your order reference is sent to WhatsApp.
                   </p>
                 </form>
                 )}
