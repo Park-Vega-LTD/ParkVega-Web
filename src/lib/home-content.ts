@@ -64,21 +64,28 @@ export const FALLBACK_MENU: MenuHighlight[] = [
   { name: "6 Wings + Chips", price: 11800, label: "Popular choice" },
 ];
 
-export const REVIEWS = [
+/** Built-in guest testimonials; staff replace them in Admin → Homepage sections. */
+export const TESTIMONIALS = [
   {
     quote:
       "The entry fee covers all activities in the park: the pools, wave pool, slides etc. The activities are really nice for water lovers… Very good security too.",
     author: "Illorah Ella",
+    detail: "Park Vega guest",
+    rating: "5",
   },
   {
     quote:
       "It was fun, the staff were very friendly and helpful. The meal was great and the bar drinks are top-notch. It's a complete enjoyment package!",
     author: "successfulsunshine Obokparo",
+    detail: "Park Vega guest",
+    rating: "5",
   },
   {
     quote:
       "It was fun! The lifeguards there are always alert and caring. The staff are welcoming. The environment is neat and the service is top-notch.",
     author: "Esosa Favour",
+    detail: "Park Vega guest",
+    rating: "5",
   },
 ];
 
@@ -131,11 +138,3 @@ export const PROHIBITED_ITEMS = [
   { label: "Tasers", icon: "taser" },
 ] as const;
 
-/**
- * Park Vega's own YouTube Shorts shown on the homepage. `id` is the part of
- * the YouTube link after `/shorts/`. Add or remove entries to change the videos.
- */
-export const PARK_VIDEOS = [
-  { id: "0lGxolhIYxI", title: "Slides. Waves. Smiles.", badge: "Thrill slides", tone: "lime" },
-  { id: "rF4kpE23AeE", title: "Your kind of fun", badge: "Wave pool", tone: "coral" },
-] as const;

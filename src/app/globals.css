@@ -231,7 +231,7 @@
   .card-lift:hover { translate: 0 -6px; box-shadow: var(--shadow-card); }
   .card-lift:hover img { transform: scale(1.06); }
 
-  /* Reviews marquee: an endless track sliding left to right (see ReviewsCarousel). */
+  /* Testimonials marquee: an endless track sliding left to right (see TestimonialsCarousel). */
   @keyframes marquee-right {
     from { transform: translateX(-50%); }
     to { transform: translateX(0); }

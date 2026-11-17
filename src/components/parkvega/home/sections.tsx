@@ -3,21 +3,16 @@ import Image from "next/image";
 import Link from "next/link";
 import {
   ArrowRight,
-  Cake,
   Check,
-  Clock,
   Hash,
   LifeBuoy,
   Lock,
   MapPin,
   Megaphone,
   Navigation,
-  School,
   ShieldCheck,
-  Shirt,
   Ticket,
   Umbrella,
-  UsersRound,
   UtensilsCrossed,
   Waves,
   type LucideIcon,
@@ -26,25 +21,25 @@ import {
 import { SectionHeading } from "@/components/parkvega/page-hero";
 import { AttractionVideo } from "@/components/parkvega/home/attraction-video";
 import { VideoShorts } from "@/components/parkvega/home/video-shorts";
-import { ReviewsCarousel } from "@/components/parkvega/reviews-carousel";
+import { BlockIcon } from "@/components/parkvega/block-icon";
+import { TestimonialsCarousel } from "@/components/parkvega/testimonials";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
 import {
   DIRECTION_CITIES,
-  PARK_VIDEOS,
   type AttractionHighlight,
   type MenuHighlight,
 } from "@/lib/home-content";
 import {
   ADDRESS,
   MAPS_URL,
-  OPEN_DAYS_SHORT,
-  OPEN_HOURS,
   directionsUrl,
   formatNaira,
+  shortDays,
   whatsappUrl,
 } from "@/lib/site";
+import type { CelebrateBlock, PlanVisitBlock, TestimonialsBlock, VideosBlock } from "@/lib/page-blocks";
 import type { Photo } from "@/lib/site-photos";
 
 /** Inline style that staggers a `data-reveal` element by its position in a list. */
@@ -144,28 +139,30 @@ export function AttractionsSection({ items }: { items: AttractionHighlight[] }) 
   );
 }
 
-export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
-  const prices = [
-    { who: "Adults & kids over 150cm", price: `From ${formatNaira(fromPrice)}` },
-    { who: "Kids 90cm – 150cm", price: "Child rate" },
-    { who: "Kids under 90cm", price: "Free" },
-    { who: "Private cabana · seats 12", price: "Book ahead" },
-  ];
-  const essentials: { icon: LucideIcon; text: string }[] = [
-    { icon: Clock, text: `Open ${OPEN_DAYS_SHORT}, ${OPEN_HOURS}` },
-    { icon: Shirt, text: "Swimwear required on all slides – no jewellery on rides" },
-    { icon: UsersRound, text: "Children under 150cm must be with an adult" },
-    { icon: LifeBuoy, text: "Non-swimmers must use life jackets or tubes and stay in the shallow end" },
+export function PlanYourVisitSection({
+  fromPrice,
+  hours,
+  block,
+}: {
+  fromPrice: number;
+  /** Opening days and hours from Admin → Settings. */
+  hours: { opening_days: string; opening_hours: string };
+  /** Staff-edited copy (Admin → Homepage sections), or the built-in one. */
+  block: PlanVisitBlock;
+}) {
+  const rules = [
+    { icon: "clock", text: `Open ${shortDays(hours.opening_days)}, ${hours.opening_hours}` },
+    ...block.rules,
   ];
   return (
-    <section className="mx-auto grid max-w-7xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
+    <section id="plan-your-visit" className="mx-auto grid max-w-7xl scroll-mt-24 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
       <div>
-        <SectionHeading eyebrow="Plan your visit" title="Everything you need for a perfect day." />
+        <SectionHeading eyebrow={block.eyebrow} title={block.title} description={block.description || undefined} />
         <ul className="mt-8 grid gap-3">
-          {essentials.map(({ icon: Icon, text }, i) => (
-            <li key={text} data-reveal style={stagger(i)} className="group flex items-center gap-4 text-sm sm:text-base">
+          {rules.map(({ icon, text }, i) => (
+            <li key={`${i}-${text}`} data-reveal style={stagger(i)} className="group flex items-center gap-4 text-sm sm:text-base">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-ocean-soft text-primary-ink ring-1 ring-primary/20 transition-[rotate,scale,background-color] duration-300 group-hover:-rotate-6 group-hover:scale-110 group-hover:bg-primary/20">
-                <Icon className="size-5" />
+                <BlockIcon name={icon} className="size-5" />
               </span>
               {text}
             </li>
@@ -190,29 +187,33 @@ export function PlanYourVisitSection({ fromPrice }: { fromPrice: number }) {
       <div data-reveal style={stagger(1)} className="overflow-hidden rounded-3xl border border-border bg-card">
         <table className="w-full text-left text-sm">
           <caption className="bg-deep px-5 py-4 text-left font-display text-lg font-semibold text-hero-foreground">
-            Ticket prices
+            {block.price_title}
           </caption>
           <tbody>
-            {prices.map(({ who, price }) => (
-              <tr key={who} className="border-t border-border">
-                <th scope="row" className="px-5 py-4 font-semibold">{who}</th>
-                <td className="px-5 py-4 text-right font-display text-base font-bold text-primary-ink">{price}</td>
+            {block.prices.map(({ label, value }, i) => (
+              <tr key={`${i}-${label}`} className="border-t border-border">
+                <th scope="row" className="px-5 py-4 font-semibold">{label}</th>
+                <td className="px-5 py-4 text-right font-display text-base font-bold text-primary-ink">
+                  {value.replaceAll("{from_price}", formatNaira(fromPrice))}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-        <p className="border-t border-border bg-muted px-5 py-3 text-xs text-muted-foreground">
-          Schools, corporates and groups above 20 get group pricing –{" "}
-          <a
-            href={whatsappUrl("Hi Park Vega! I'd like group pricing for 20+ people.")}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-semibold text-foreground underline underline-offset-2"
-          >
-            ask on WhatsApp
-          </a>
-          .
-        </p>
+        {block.group_note && (
+          <p className="border-t border-border bg-muted px-5 py-3 text-xs text-muted-foreground">
+            {block.group_note}{" "}
+            <a
+              href={whatsappUrl("Hi Park Vega! I'd like group pricing for 20+ people.")}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-foreground underline underline-offset-2"
+            >
+              Ask on WhatsApp
+            </a>
+            .
+          </p>
+        )}
       </div>
     </section>
   );
@@ -276,61 +277,37 @@ export function RestaurantSection({
   );
 }
 
-export function CelebrateSection() {
-  const cards = [
-    {
-      icon: Cake,
-      title: "Birthday parties",
-      text: "Turn a birthday into a splash day. Book a private cabana, add food and drinks, and let the party loose on every slide.",
-      points: ["Private cabana for up to 12 guests", "Food & drinks on site"],
-      cta: "Plan a party",
-      message: "Hi Park Vega! I'd like to plan a birthday party.",
-      href: "/birthday-parties",
-      more: "Party packages",
-    },
-    {
-      icon: School,
-      title: "School excursions",
-      text: "A fun, safe day out for pupils, with zero-depth kids' pools, anti-slip floors and life jackets for non-swimmers.",
-      points: ["Group pricing for schools", "Staff guidance on every slide"],
-      cta: "Book a school trip",
-      message: "Hi Park Vega! I'd like to book a school excursion.",
-      href: "/school-excursions",
-      more: "School trips",
-    },
-  ];
+export function CelebrateSection({ block }: { block: CelebrateBlock }) {
   return (
-    <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20">
-      <SectionHeading
-        eyebrow="Celebrate with us"
-        title="Birthdays & school trips."
-        description="Bring the whole crew. We'll help you plan everything on WhatsApp, from cabanas to group tickets."
-      />
-      <div className="mt-9 grid gap-5 md:grid-cols-2">
-        {cards.map(({ icon: Icon, title, text, points, cta, message, href, more }, i) => (
+    <section id="celebrate" className="mx-auto max-w-7xl scroll-mt-24 px-4 py-16 sm:px-6 sm:py-20">
+      <SectionHeading eyebrow={block.eyebrow} title={block.title} description={block.description || undefined} />
+      <div className={`mt-9 grid gap-5 ${block.cards.length === 3 ? "md:grid-cols-3" : "md:grid-cols-2"}`}>
+        {block.cards.map((card, i) => (
           <article
-            key={title}
+            key={`${i}-${card.title}`}
             data-reveal
             style={stagger(i)}
             className={`group flex flex-col rounded-3xl border border-border bg-card p-6 sm:p-8 ${CARD_HOVER}`}
           >
             <span className="grid size-12 place-items-center rounded-2xl bg-accent text-accent-foreground transition-[rotate,scale] duration-300 group-hover:-rotate-6 group-hover:scale-110">
-              <Icon className="size-6" />
+              <BlockIcon name={card.icon} className="size-6" />
             </span>
-            <h3 className="mt-5 text-2xl font-semibold">{title}</h3>
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{text}</p>
-            <ul className="mt-5 grid gap-2 text-sm">
-              {points.map((point) => (
-                <li key={point} className="flex items-center gap-2">
-                  <Check className="size-4 text-primary-ink" /> {point}
-                </li>
-              ))}
-            </ul>
+            <h3 className="mt-5 text-2xl font-semibold">{card.title}</h3>
+            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">{card.text}</p>
+            {card.points.length > 0 && (
+              <ul className="mt-5 grid gap-2 text-sm">
+                {card.points.map((point, j) => (
+                  <li key={`${j}-${point}`} className="flex items-center gap-2">
+                    <Check className="size-4 text-primary-ink" /> {point}
+                  </li>
+                ))}
+              </ul>
+            )}
             <div className="mt-auto flex flex-wrap gap-3 pt-7">
-              <WhatsAppButton message={message}>{cta}</WhatsAppButton>
+              <WhatsAppButton message={card.whatsapp_message}>{card.button_label}</WhatsAppButton>
               <Button asChild variant="outline">
-                <Link href={href}>
-                  {more} <ArrowRight className="size-4" />
+                <Link href={card.link_href}>
+                  {card.link_label} <ArrowRight className="size-4" />
                 </Link>
               </Button>
             </div>
@@ -386,11 +363,18 @@ export function GettingHereSection() {
 const VIDEOS_BACKDROP =
   "https://res.cloudinary.com/rlenhslv/image/upload/v1794922625/parkvega/site/photos/heroes/plan-your-visit.jpg";
 
-export function VideosSection() {
+export function VideosSection({
+  block,
+  backdrop = null,
+}: {
+  block: VideosBlock;
+  /** The `home/videos` spot photo staff chose, if any. */
+  backdrop?: Photo | null;
+}) {
   return (
-    <section aria-labelledby="videos-title" className="px-3 py-10 sm:px-6 sm:py-14">
+    <section id="park-videos" aria-labelledby="videos-title" className="scroll-mt-24 px-3 py-10 sm:px-6 sm:py-14">
       <div className="relative mx-auto max-w-7xl overflow-hidden rounded-3xl bg-deep">
-        <Image src={VIDEOS_BACKDROP} alt="" fill sizes="100vw" className="object-cover" />
+        <Image src={backdrop?.src ?? VIDEOS_BACKDROP} alt="" fill sizes="100vw" className="object-cover" />
         {/* Darker on the text side, lighter behind the videos so the park shows through. */}
         <div
           aria-hidden="true"
@@ -401,7 +385,7 @@ export function VideosSection() {
         <div className="relative grid items-center gap-10 px-5 py-12 sm:px-10 sm:py-16 lg:grid-cols-[1fr_1.15fr] lg:gap-12 lg:px-14">
           <div>
             <span data-reveal className="text-xs font-extrabold uppercase tracking-wide text-secondary">
-              Watch · filmed at Park Vega
+              {block.eyebrow}
             </span>
             <h2
               id="videos-title"
@@ -409,22 +393,25 @@ export function VideosSection() {
               style={stagger(1)}
               className="mt-3 text-balance text-[2rem] font-bold leading-tight text-hero-foreground sm:text-5xl"
             >
-              See the park in action.
+              {block.title}
             </h2>
-            <p data-reveal style={stagger(2)} className="mt-4 max-w-md text-base leading-relaxed text-hero-foreground/80 sm:text-lg">
-              Real guests, real splashes. Ride the slides and float the waves before you even get here – tap a video
-              to play it.
-            </p>
-            <ul data-reveal style={stagger(3)} className="mt-6 flex flex-wrap gap-2">
-              {["15 attractions", "Unlimited rides", "Fun for every age"].map((chip) => (
-                <li
-                  key={chip}
-                  className="rounded-full border border-hero-foreground/25 bg-hero-foreground/10 px-3 py-1.5 text-xs font-bold text-hero-foreground backdrop-blur-md"
-                >
-                  {chip}
-                </li>
-              ))}
-            </ul>
+            {block.description && (
+              <p data-reveal style={stagger(2)} className="mt-4 max-w-md text-base leading-relaxed text-hero-foreground/80 sm:text-lg">
+                {block.description}
+              </p>
+            )}
+            {block.chips.length > 0 && (
+              <ul data-reveal style={stagger(3)} className="mt-6 flex flex-wrap gap-2">
+                {block.chips.map((chip, i) => (
+                  <li
+                    key={`${i}-${chip}`}
+                    className="rounded-full border border-hero-foreground/25 bg-hero-foreground/10 px-3 py-1.5 text-xs font-bold text-hero-foreground backdrop-blur-md"
+                  >
+                    {chip}
+                  </li>
+                ))}
+              </ul>
+            )}
             <div data-reveal style={stagger(4)} className="mt-8 flex flex-wrap gap-3">
               <Button asChild variant="ticket">
                 <Link href="/tickets">
@@ -439,25 +426,23 @@ export function VideosSection() {
             </div>
           </div>
 
-          <VideoShorts videos={PARK_VIDEOS} />
+          <VideoShorts
+            videos={block.videos.map((video) => ({ id: video.youtube_id, title: video.title, badge: video.badge, tone: video.tone }))}
+          />
         </div>
       </div>
     </section>
   );
 }
 
-export function ReviewsSection() {
+export function TestimonialsSection({ block }: { block: TestimonialsBlock }) {
   return (
-    <section className="overflow-hidden py-16 sm:py-20">
+    <section id="testimonials" className="scroll-mt-24 overflow-hidden py-16 sm:py-20">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <SectionHeading
-          eyebrow="Google reviews"
-          title="Loved by families across Nigeria."
-          description="Real words from real guests, straight from our Google reviews."
-        />
+        <SectionHeading eyebrow={block.eyebrow} title={block.title} description={block.description || undefined} />
       </div>
       <div className="mt-7">
-        <ReviewsCarousel />
+        <TestimonialsCarousel testimonials={block.testimonials} />
       </div>
     </section>
   );
@@ -522,13 +507,13 @@ export function VisitorInfoCards({ fromPrice }: { fromPrice: number }) {
   );
 }
 
-export function FinalCta({ fromPrice }: { fromPrice: number }) {
+export function FinalCta({ fromPrice, openingDays }: { fromPrice: number; openingDays: string }) {
   return (
     <section className="px-4 pb-16 sm:px-6 sm:pb-20">
       <div data-reveal className="mx-auto max-w-7xl rounded-3xl bg-primary px-6 py-14 text-center text-primary-foreground sm:px-12">
         <h2 className="mx-auto max-w-2xl text-balance text-[1.75rem] font-bold leading-tight sm:text-4xl">Ready to make a splash?</h2>
         <p className="mx-auto mt-4 max-w-xl text-primary-foreground/85">
-          Tickets from {formatNaira(fromPrice)} · {OPEN_DAYS_SHORT} · Agbor, Delta State
+          Tickets from {formatNaira(fromPrice)} · {shortDays(openingDays)} · Agbor, Delta State
         </p>
         <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
           <Button asChild variant="ticket" size="lg">

@@ -6,7 +6,8 @@ import { EnquiryForm } from "@/components/parkvega/enquiry-form";
 import { FaqBlock } from "@/components/parkvega/faq-block";
 import { PackageCards } from "@/components/parkvega/package-cards";
 import { PageHero, SectionHeading } from "@/components/parkvega/page-hero";
-import { ReviewsGrid } from "@/components/parkvega/reviews-grid";
+import { TestimonialsGrid } from "@/components/parkvega/testimonials";
+import { TESTIMONIALS } from "@/lib/home-content";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { getPageImages, spotPhotos } from "@/lib/public-data";
 import { DEFAULT_HERO_PHOTOS } from "@/lib/site-photos";
@@ -132,9 +133,9 @@ export default async function BirthdayPartiesPage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6">
-        <SectionHeading eyebrow="Google reviews" title="Families love a Park Vega day." />
+        <SectionHeading eyebrow="Testimonials" title="Families love a Park Vega day." />
         <div className="mt-9">
-          <ReviewsGrid />
+          <TestimonialsGrid testimonials={TESTIMONIALS} />
         </div>
       </section>
 

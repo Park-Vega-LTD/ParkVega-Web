@@ -12,7 +12,7 @@ import {
   GettingHereSection,
   PlanYourVisitSection,
   RestaurantSection,
-  ReviewsSection,
+  TestimonialsSection,
   VideosSection,
   VisitorInfoCards,
   WhyParkVega,
@@ -29,6 +29,7 @@ import {
   type MenuHighlight,
 } from "@/lib/home-content";
 import { getRestaurantMenus } from "@/lib/menu-data";
+import { getHomeBlocks } from "@/lib/page-blocks";
 import {
   getAttractionFallbackImage,
   getFromPrice,
@@ -99,7 +100,7 @@ export default async function HomePage() {
 
   // Fetch homepage data in parallel. Any single failure degrades to the
   // static fallback so the page still renders every section.
-  const [attractions, events, fromPrice, menuHighlights, settings, homeImages, attractionFallback] = await Promise.all([
+  const [attractions, events, fromPrice, menuHighlights, settings, homeImages, attractionFallback, blocks] = await Promise.all([
     publicFetch<Attraction[]>("/attractions", fetchOpts).catch(() => [] as Attraction[]),
     publicFetch<Event[]>("/events", fetchOpts).catch(() => [] as Event[]),
     getFromPrice(),
@@ -107,6 +108,7 @@ export default async function HomePage() {
     getSiteSettings(),
     getPageImages("home"),
     getAttractionFallbackImage(),
+    getHomeBlocks(),
   ]);
   // Staff pick these under Page images in the console; a spot left empty shows no photo.
   const heroImages = homeImages
@@ -115,6 +117,7 @@ export default async function HomePage() {
   const [restaurantPhoto = null] = spotPhotos(homeImages, "restaurant");
   // One photo per service group, in order: comfort, dining, safety, tools.
   const servicePhotos = spotPhotos(homeImages, "services");
+  const [videosBackdrop = null] = spotPhotos(homeImages, "videos");
 
   const activeAttractions = attractions
     .filter((attraction) => attraction.status === "ACTIVE")
@@ -139,9 +142,9 @@ export default async function HomePage() {
       <WhyParkVega />
       <AttractionsSection items={attractionHighlights} />
       <ServicesSection photos={servicePhotos} />
-      <VideosSection />
+      <VideosSection block={blocks.videos} backdrop={videosBackdrop} />
       <VisitorInfoCards fromPrice={fromPrice} />
-      <PlanYourVisitSection fromPrice={fromPrice} />
+      <PlanYourVisitSection fromPrice={fromPrice} hours={settings} block={blocks["plan-visit"]} />
       <RestaurantSection
         items={menuHighlights.length > 0 ? menuHighlights : FALLBACK_MENU}
         photo={restaurantPhoto}
@@ -169,11 +172,11 @@ export default async function HomePage() {
         </section>
       )}
 
-      <CelebrateSection />
+      <CelebrateSection block={blocks.celebrate} />
       <GettingHereSection />
-      <ReviewsSection />
+      <TestimonialsSection block={blocks.testimonials} />
       <FaqBlock page="home" limit={10} />
-      <FinalCta fromPrice={fromPrice} />
+      <FinalCta fromPrice={fromPrice} openingDays={settings.opening_days} />
     </>
   );
 }
