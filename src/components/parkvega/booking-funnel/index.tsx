@@ -3,6 +3,14 @@
 import * as React from "react";
 
 import { cn } from "@/lib/utils";
+import {
+  itemsCount,
+  itemsValue,
+  leadTimeDays,
+  ticketItems,
+  track,
+  weekdayOf,
+} from "@/lib/analytics/events";
 import { DateStep } from "./date-step";
 import { TicketStep } from "./ticket-step";
 import { CheckoutStep } from "./checkout-step";
@@ -115,13 +123,32 @@ export function BookingFunnel({ extraOpenDates }: { extraOpenDates?: string[] })
 
   // Step 1 → 2: a date was chosen.
   const handleDateNext = React.useCallback((visitDate: string) => {
+    track({
+      name: "select_visit_date",
+      visit_date: visitDate,
+      lead_time_days: leadTimeDays(visitDate),
+      visit_weekday: weekdayOf(visitDate),
+    });
     dispatch({ type: "SET_DATE", visitDate });
   }, []);
 
   // Step 2 → 3: tickets chosen.
-  const handleTicketNext = React.useCallback((selections: TicketSelection[]) => {
-    dispatch({ type: "SET_SELECTIONS", selections });
-  }, []);
+  const handleTicketNext = React.useCallback(
+    (selections: TicketSelection[]) => {
+      if (state.visitDate) {
+        const items = ticketItems(selections);
+        track({
+          name: "add_to_cart",
+          visit_date: state.visitDate,
+          value: itemsValue(items),
+          items,
+          ticket_count: itemsCount(items),
+        });
+      }
+      dispatch({ type: "SET_SELECTIONS", selections });
+    },
+    [state.visitDate],
+  );
 
   const goBackTo = React.useCallback((step: FunnelStep) => {
     dispatch({ type: "GO_TO", step });

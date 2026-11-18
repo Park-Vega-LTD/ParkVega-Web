@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { CookieSettingsButton } from "@/components/analytics/consent-banner";
 import {
   BookOpen,
   BriefcaseBusiness,
@@ -24,6 +25,7 @@ import {
 import { createContext, useCallback, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/parkvega/logo";
+import { ParkChat } from "@/components/parkvega/park-chat";
 import { FacebookIcon, InstagramIcon, TikTokIcon, XLogoIcon, YouTubeIcon } from "@/components/parkvega/social-icons";
 import { WhatsAppIcon } from "@/components/parkvega/whatsapp-icon";
 import { Button } from "@/components/ui/button";
@@ -41,7 +43,13 @@ import {
 } from "@/lib/site";
 import { cn } from "@/lib/utils";
 
-export type ParkInfo = { days: string; hours: string; notice: string | null };
+export type ParkInfo = {
+  days: string;
+  hours: string;
+  notice: string | null;
+  /** Show the "Ask Vega" chat assistant (set when OPENAI_API_KEY is configured). */
+  chat?: boolean;
+};
 
 const DEFAULT_PARK_INFO: ParkInfo = { days: OPEN_DAYS_SHORT, hours: OPEN_HOURS, notice: null };
 
@@ -396,6 +404,7 @@ export function SiteFooter() {
       </div>
       <div className="mx-auto mt-12 flex max-w-7xl flex-col items-center gap-2 border-t border-white/15 pt-8 text-center text-sm uppercase tracking-wider text-hero-foreground/70">
         <p>Copyright © {new Date().getFullYear()} Park Vega. All rights reserved.</p>
+        <CookieSettingsButton className="text-xs normal-case tracking-normal text-hero-foreground/70 underline-offset-4 hover:text-hero-foreground hover:underline" />
         <a href={`${ADMIN_URL}/login`} className="text-xs normal-case tracking-normal text-hero-foreground/40 hover:text-hero-foreground">Staff login</a>
       </div>
     </div>
@@ -432,9 +441,14 @@ export function FloatingWhatsApp() {
   </a>;
 }
 
+/** The "Ask Vega" assistant, hidden on the homepage billboard like the other floating buttons. */
+function FloatingChat() {
+  return <ParkChat revealed={useRevealOffHome()} />;
+}
+
 
 export function PageShell({ children, className }: { children: ReactNode; className?: string }) {
-  return <main className={cn("min-h-screen bg-background pb-20 text-foreground md:pb-0", className)}><SiteHeader />{children}<SiteFooter /><MobileTicketBar /><FloatingWhatsApp /></main>;
+  return <main className={cn("min-h-screen bg-background pb-20 text-foreground md:pb-0", className)}><SiteHeader />{children}<SiteFooter /><MobileTicketBar /><FloatingWhatsApp />{useContext(ParkInfoContext).chat ? <FloatingChat /> : null}</main>;
 }
 
 export function SiteChrome({ children, className, info = DEFAULT_PARK_INFO }: { children: ReactNode; className?: string; info?: ParkInfo }) {

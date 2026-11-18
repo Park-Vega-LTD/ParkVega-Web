@@ -13,6 +13,7 @@ export default async function PublicLayout({ children }: { children: ReactNode }
         days: shortDays(settings.opening_days),
         hours: settings.opening_hours,
         notice: settings.notice,
+        chat: Boolean(process.env.OPENAI_API_KEY),
       }}
     >
       <ScrollReveal />

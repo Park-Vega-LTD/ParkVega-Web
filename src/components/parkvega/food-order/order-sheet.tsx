@@ -25,6 +25,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { fullName, useResetSession, useSession } from "@/hooks/use-session";
 import { isOpenDate, normalizeNgPhone, whatsappUrl } from "@/lib/site";
 import { formatNaira } from "@/lib/utils";
+import { track } from "@/lib/analytics/events";
+import { bookingTracking } from "@/lib/analytics/tracking-context";
 
 const PICKUP_TIMES = [
   { value: "asap", label: "As soon as it's ready" },
@@ -174,6 +176,7 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
             quantity: line.quantity,
           })),
           redirect_url: `${window.location.origin}/restaurants?order=placed`,
+          tracking: bookingTracking(),
         }),
       });
       // Session expired since the drawer opened: show the sign-in prompt again.
@@ -196,6 +199,12 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
       }
       const body = await res.json();
       const created: CreatedOrder = body?.data ?? body;
+      track({
+        name: "food_order_placed",
+        value: Number(created.total ?? total) || 0,
+        item_count: count,
+        payment_mode: created.authorization_url ? "online" : "counter",
+      });
       cart.placed({
         code: created.code ?? created.id ?? "—",
         total: created.total ?? total,

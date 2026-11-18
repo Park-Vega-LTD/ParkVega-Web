@@ -23,6 +23,7 @@ import { useEffect, useRef, useState } from "react";
 import { WhatsAppButton } from "@/components/parkvega/whatsapp-button";
 import { Button } from "@/components/ui/button";
 import { clientFetch } from "@/lib/api.client";
+import { track } from "@/lib/analytics/events";
 import { MAPS_URL, OPEN_DAYS_LONG, OPEN_HOURS } from "@/lib/site";
 import { formatNaira } from "@/lib/utils";
 import { WHAT_TO_WEAR } from "@/lib/visit-content";
@@ -196,6 +197,28 @@ export function BookingConfirmation({ code }: { code: string }) {
     enabled: Boolean(booking?.id) && paid,
     retry: false,
   });
+
+  // Analytics: the visitor is back from the payment page (the gateway adds
+  // tx_ref / reference to the URL). Not a purchase; the API reports that once
+  // the provider has confirmed the money.
+  const returnTracked = useRef(false);
+  useEffect(() => {
+    if (!booking || returnTracked.current) return;
+    const params = new URLSearchParams(window.location.search);
+    if (!params.has("tx_ref") && !params.has("reference") && !params.has("trxref")) return;
+    returnTracked.current = true;
+    const gatewayStatus = (params.get("status") ?? "").toLowerCase();
+    track({
+      name: "payment_return_view",
+      payment_status: paid
+        ? "paid"
+        : ["cancelled", "failed"].includes(gatewayStatus)
+          ? "failed"
+          : booking.status === "pending_payment"
+            ? "pending"
+            : "other",
+    });
+  }, [booking, paid]);
 
   async function payNow() {
     if (!booking) return;

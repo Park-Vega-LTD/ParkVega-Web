@@ -12,6 +12,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { fullName, useResetSession, useSession } from "@/hooks/use-session";
 import { normalizeNgPhone, whatsappUrl } from "@/lib/site";
+import { track } from "@/lib/analytics/events";
+import { bookingTracking } from "@/lib/analytics/tracking-context";
 
 export type EnquiryField = {
   name: string;
@@ -87,7 +89,7 @@ export function EnquiryForm({
       const res = await fetch("/api/enquiries", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type, ...data, whatsapp: phone }),
+        body: JSON.stringify({ type, ...data, whatsapp: phone, tracking: bookingTracking() }),
       });
       if (res.status === 401) {
         // Session expired: show the sign-in prompt again.
@@ -101,6 +103,7 @@ export function EnquiryForm({
       }
       const body = await res.json().catch(() => ({}));
       const created = (body?.data ?? body) as { code?: string; id?: string };
+      track({ name: "generate_lead", lead_type: type, method: "form" });
       setStatus({ kind: "sent", reference: created.code ?? created.id ?? null });
     } catch {
       setStatus({ kind: "whatsapp", message });
@@ -135,7 +138,13 @@ export function EnquiryForm({
           entered is already filled in.
         </p>
         <Button asChild size="lg" className="mt-6 bg-whatsapp text-white hover:bg-whatsapp/90">
-          <a href={whatsappUrl(status.message)} target="_blank" rel="noopener noreferrer">
+          <a
+            href={whatsappUrl(status.message)}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-analytics-skip=""
+            onClick={() => track({ name: "generate_lead", lead_type: type, method: "whatsapp_fallback" })}
+          >
             <WhatsAppIcon className="size-5" /> Send on WhatsApp
           </a>
         </Button>

@@ -31,6 +31,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import type { GuestDetails, TicketSelection } from "./types";
+import { itemsCount, itemsValue, ticketItems, track } from "@/lib/analytics/events";
+import { bookingTracking, type BookingTracking } from "@/lib/analytics/tracking-context";
 
 /** Fallback shown when the REST API returns no usable error message (Req 6.6). */
 const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";
@@ -59,6 +61,8 @@ interface CreateBookingPayload {
     adults: number;
     children: number;
   }>;
+  /** Analytics context (consent, GA ids); no personal details. */
+  tracking?: BookingTracking;
 }
 
 /** Response from POST /api/payments/initiate. */
@@ -88,11 +92,25 @@ export function CheckoutStep({
   onBack,
 }: CheckoutStepProps) {
   const [formError, setFormError] = React.useState<string | null>(null);
+  const [redirecting, setRedirecting] = React.useState(false);
 
   const total = React.useMemo(
     () => selections.reduce((sum, sel) => sum + lineTotal(sel), 0),
     [selections],
   );
+
+  const analyticsItems = React.useMemo(() => ticketItems(selections), [selections]);
+
+  // Analytics: the visitor reached checkout with these tickets (once per visit to this step).
+  React.useEffect(() => {
+    track({
+      name: "begin_checkout",
+      visit_date: visitDate,
+      value: itemsValue(analyticsItems),
+      items: analyticsItems,
+      ticket_count: itemsCount(analyticsItems),
+    });
+  }, [visitDate, analyticsItems]);
 
   const form = useForm<GuestFormValues>({
     resolver: zodResolver(guestSchema),
@@ -118,27 +136,49 @@ export function CheckoutStep({
           adults: sel.adultQty,
           children: sel.childQty,
         })),
+        tracking: bookingTracking(),
       };
 
-      const booking = await clientFetch<Booking>("/api/bookings", {
-        method: "POST",
-        body: JSON.stringify(payload),
-      });
+      let booking: Booking;
+      try {
+        booking = await clientFetch<Booking>("/api/bookings", {
+          method: "POST",
+          body: JSON.stringify(payload),
+        });
+      } catch (error) {
+        track({ name: "checkout_error", step: "create_booking" });
+        throw error;
+      }
 
       // 2. Initiate payment via the BFF Route Handler (Requirements 7.1, 7.4).
-      const payment = await clientFetch<InitiatePaymentResponse>(
-        "/api/payments/initiate",
-        {
-          method: "POST",
-          body: JSON.stringify({ bookingId: booking.id }),
-        },
-      );
-
-      return payment;
+      try {
+        return await clientFetch<InitiatePaymentResponse>(
+          "/api/payments/initiate",
+          {
+            method: "POST",
+            body: JSON.stringify({ bookingId: booking.id }),
+          },
+        );
+      } catch (error) {
+        track({ name: "checkout_error", step: "start_payment" });
+        throw error;
+      }
     },
     onSuccess: (payment) => {
-      // Redirect the browser to the Flutterwave hosted payment page.
-      window.location.href = payment.authorization_url;
+      track({
+        name: "add_payment_info",
+        visit_date: visitDate,
+        value: itemsValue(analyticsItems),
+        items: analyticsItems,
+        payment_type: "online_gateway",
+      });
+      // Redirect the browser to the Flutterwave hosted payment page. The short
+      // wait lets GTM send the event before the page unloads; the form stays
+      // disabled meanwhile so it can't be sent twice.
+      setRedirecting(true);
+      window.setTimeout(() => {
+        window.location.href = payment.authorization_url;
+      }, 150);
     },
     onError: (error) => {
       // Display the REST API error message, or a fallback (Requirement 6.6).
@@ -155,7 +195,7 @@ export function CheckoutStep({
     mutation.mutate(values);
   }
 
-  const isSubmitting = mutation.isPending;
+  const isSubmitting = mutation.isPending || redirecting;
 
   const prettyDate = React.useMemo(() => {
     const [year, month, day] = visitDate.split("-").map(Number);

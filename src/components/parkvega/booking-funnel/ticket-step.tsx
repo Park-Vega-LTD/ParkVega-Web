@@ -5,6 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Minus, Plus } from "lucide-react";
 
 import { clientFetch } from "@/lib/api.client";
+import { track } from "@/lib/analytics/events";
 import { cn, formatNaira } from "@/lib/utils";
 import type { TicketProduct } from "@/types/api";
 import { Button } from "@/components/ui/button";
@@ -232,6 +233,26 @@ export function TicketStep({
   );
 
   const products = productsQuery.data ?? [];
+
+  // Analytics: the ticket options shown for this date, once per date.
+  const listedFor = React.useRef<string | null>(null);
+  React.useEffect(() => {
+    const list = productsQuery.data;
+    if (!list || list.length === 0 || listedFor.current === visitDate) return;
+    listedFor.current = visitDate;
+    track({
+      name: "view_item_list",
+      item_list_id: "tickets",
+      item_list_name: "Tickets for a visit date",
+      visit_date: visitDate,
+      items: list.map((product, index) => ({
+        item_id: product.id,
+        item_name: product.name,
+        item_category: "Ticket",
+        index,
+      })),
+    });
+  }, [productsQuery.data, visitDate]);
 
   const totalQty = React.useMemo(
     () =>

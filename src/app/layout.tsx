@@ -3,7 +3,13 @@ import { Fredoka, Nunito_Sans } from "next/font/google";
 import { Providers } from "@/components/providers";
 import { SITE_URL } from "@/lib/site";
 import { Toaster } from "sonner";
+import { AnalyticsScripts } from "@/components/analytics/analytics-scripts";
+import { ConsentBanner } from "@/components/analytics/consent-banner";
+import { ConsentDefaultScript } from "@/components/analytics/consent-default-script";
+import { ConsentProvider } from "@/components/analytics/consent-provider";
 import "./globals.css";
+
+const GSC_VERIFICATION = process.env.NEXT_PUBLIC_GSC_VERIFICATION;
 
 // Brand typefaces: Fredoka for headlines, Nunito Sans for reading text.
 const fredoka = Fredoka({
@@ -29,6 +35,8 @@ export const metadata: Metadata = {
     "Park Vega Waterpark in Agbor, Delta State: wave pool, thrill slides and kids' splash zones. Open Thu–Sun & public holidays. Tickets from ₦20,000.",
   applicationName: "Park Vega Waterpark",
   openGraph: { siteName: "Park Vega Waterpark", locale: "en_NG", type: "website" },
+  // Google Search Console ownership (only needed if not verified by DNS).
+  ...(GSC_VERIFICATION ? { verification: { google: GSC_VERIFICATION } } : {}),
 };
 
 export const viewport: Viewport = {
@@ -42,9 +50,14 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${fredoka.variable} ${nunitoSans.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+          <ConsentDefaultScript />
           <Providers>
-            {children}
-            <Toaster />
+            <ConsentProvider>
+              {children}
+              <Toaster />
+              <ConsentBanner />
+              <AnalyticsScripts />
+            </ConsentProvider>
           </Providers>
         </body>
     </html>
