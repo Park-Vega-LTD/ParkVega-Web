@@ -18,19 +18,19 @@ const PHOTOS = "https://res.cloudinary.com/rlenhslv/image/upload";
 
 export const FALLBACK_ATTRACTIONS: AttractionHighlight[] = [
   {
-    name: "Wave Pool",
+    name: "Family Wavepool",
     description: "Half a million gallons of ocean-style waves across 1,500m² – the heart of the park.",
     tags: ["All ages", "1,500m² pool"],
     image: `${PHOTOS}/v1793463013/parkvega/site/photos/pool-guests-ball.jpg`,
   },
   {
-    name: "Blackhole Combo",
+    name: "Black Hole Slide",
     description: "A steep drop up a near-vertical wall for a moment of weightlessness. Ride it as a pair.",
     tags: ["Min. 120cm", "Double raft"],
     image: `${PHOTOS}/v1793463021/parkvega/site/photos/tube-slide-pair.png`,
   },
   {
-    name: "Mat Racer",
+    name: "Multi-Surf Mat Racer Slide",
     description: "Grab a mat and race your friends side by side down the slide to the splash at the bottom.",
     tags: ["Race your friends", "Thrill"],
     image: `${PHOTOS}/v1793463010/parkvega/site/photos/mat-racer-slide.jpg`,

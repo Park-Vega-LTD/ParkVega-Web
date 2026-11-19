@@ -46,7 +46,7 @@ const MAP_LEGEND: { name: string; note: string; href?: string }[] = [
   { name: "Entrance building", note: "Show your ticket QR code here" },
   { name: "Food station", note: "Snacks and drinks between rides", href: "/restaurants" },
   { name: "Swim-up bar", note: "Drinks without leaving the water" },
-  { name: "Wave pool", note: "Ocean-style waves for all ages", href: "/attractions" },
+  { name: "Family Wavepool", note: "Ocean-style waves for all ages", href: "/attractions" },
   { name: "Cabanas", note: "Private shade for up to 12 guests", href: "/services#cabanas" },
   { name: "Water slides", note: "Our tallest thrill slides", href: "/attractions" },
   { name: "Flavor Grill Restaurant", note: "Full meals, served all day", href: "/restaurants" },
