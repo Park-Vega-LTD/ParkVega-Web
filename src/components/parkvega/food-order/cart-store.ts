@@ -92,6 +92,11 @@ export const cart = {
   dismissLastOrder() {
     update({ ...state, lastOrder: null });
   },
+  /** The last order's payment didn't go through: put its items back in the cart. */
+  retryLastOrder() {
+    if (!state.lastOrder) return;
+    update({ lines: state.lastOrder.lines, lastOrder: null });
+  },
 };
 
 /** Window event FoodOrderSheet listens for, so other parts of the page can open checkout. */

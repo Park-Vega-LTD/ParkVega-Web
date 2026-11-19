@@ -1,6 +1,7 @@
 "use client";
 
-import { CheckCircle2, Loader2, ShoppingBag, UtensilsCrossed } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { CheckCircle2, Clock, Loader2, ShoppingBag, UtensilsCrossed, XCircle } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent } from "react";
 
@@ -23,6 +24,7 @@ import { Label } from "@/components/ui/label";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Textarea } from "@/components/ui/textarea";
 import { fullName, useResetSession, useSession } from "@/hooks/use-session";
+import { clientFetch } from "@/lib/api.client";
 import { isOpenDate, normalizeNgPhone, whatsappUrl } from "@/lib/site";
 import { formatNaira } from "@/lib/utils";
 import { track } from "@/lib/analytics/events";
@@ -82,12 +84,74 @@ function orderMessage(lines: CartLine[], details: Record<string, string>) {
 
 type CreatedOrder = { id?: string; code?: string; total?: number; authorization_url?: string; customer_id?: string };
 
+/** GET /api/food-orders/:code — payment progress of the visitor's own order. */
+type FoodOrderStatus = {
+  code: string;
+  status: "placed" | "preparing" | "ready" | "collected" | "cancelled";
+  payment_status: "counter" | "pending" | "paid" | "failed";
+  total: number;
+};
+
+/** How often, and for how long, to check an online payment after checkout. */
+const PAYMENT_POLL_MS = 5_000;
+const PAYMENT_POLL_LIMIT_MS = 3 * 60_000;
+
+type PaymentState = "counter" | "checking" | "paid" | "failed" | "slow" | "unknown";
+
+/**
+ * Where an online order's payment stands, from the API (the provider's webhook
+ * updates it). Polls while the payment is still pending. The gateway's own
+ * `?status=` on the return URL only counts when it says the payer cancelled or
+ * the charge failed, since only the API can confirm money was received.
+ */
+function usePaymentState(order: PlacedOrder): PaymentState {
+  const gatewayStatus = (useSearchParams().get("status") ?? "").toLowerCase();
+  // Stop polling after PAYMENT_POLL_LIMIT_MS and say it's taking a while.
+  const [timedOut, setTimedOut] = useState(false);
+  useEffect(() => {
+    if (order.payAtPickup) return;
+    const timer = setTimeout(() => setTimedOut(true), PAYMENT_POLL_LIMIT_MS);
+    return () => clearTimeout(timer);
+  }, [order.payAtPickup]);
+  const query = useQuery<FoodOrderStatus>({
+    queryKey: ["food-order", order.code],
+    queryFn: () => clientFetch<FoodOrderStatus>(`/api/food-orders/${encodeURIComponent(order.code)}`),
+    enabled: !order.payAtPickup,
+    refetchInterval: (q) =>
+      q.state.data?.payment_status === "pending" && !timedOut ? PAYMENT_POLL_MS : false,
+    retry: 1,
+  });
+
+  if (order.payAtPickup) return "counter";
+  const data = query.data;
+  if (!data) return query.isError ? "unknown" : "checking";
+  if (data.payment_status === "paid") return "paid";
+  if (data.payment_status === "failed" || data.status === "cancelled") return "failed";
+  if (["cancelled", "failed"].includes(gatewayStatus)) return "failed";
+  return timedOut ? "slow" : "checking";
+}
+
+const HEADINGS: Record<PaymentState, { title: string; icon: typeof CheckCircle2 }> = {
+  counter: { title: "Order placed!", icon: CheckCircle2 },
+  paid: { title: "Paid – order placed!", icon: CheckCircle2 },
+  checking: { title: "Confirming your payment…", icon: Loader2 },
+  slow: { title: "Still confirming your payment", icon: Clock },
+  unknown: { title: "Order received", icon: Clock },
+  failed: { title: "Payment didn't go through", icon: XCircle },
+};
+
 function OrderConfirmation({ order, onNewOrder }: { order: PlacedOrder; onNewOrder: () => void }) {
+  const payment = usePaymentState(order);
+  const { title, icon: Icon } = HEADINGS[payment];
+  const confirmed = payment === "paid" || payment === "counter";
+
   return (
-    <div className="space-y-5" role="status">
+    <div className="space-y-5" role="status" aria-live="polite">
       <div className="rounded-3xl bg-deep p-6 text-hero-foreground">
-        <CheckCircle2 className="size-9 text-secondary" />
-        <h3 className="mt-3 text-2xl font-semibold">Order placed!</h3>
+        <Icon
+          className={`size-9 ${payment === "failed" ? "text-destructive" : "text-secondary"} ${payment === "checking" ? "animate-spin" : ""}`}
+        />
+        <h3 className="mt-3 text-2xl font-semibold">{title}</h3>
         <p className="mt-1 text-sm text-hero-foreground/75">
           Pickup {dayLabel(order.pickupDate)}, {timeLabel(order.pickupTime)}
         </p>
@@ -95,10 +159,33 @@ function OrderConfirmation({ order, onNewOrder }: { order: PlacedOrder; onNewOrd
         <p className="font-mono text-2xl font-bold tracking-wider">{order.code}</p>
       </div>
       <CustomerIdBadge id={order.customerId} />
-      <p className="text-sm">
-        Show this reference at the restaurant counter to collect your food.
-        {order.payAtPickup && " Pay at the counter when you pick up."}
-      </p>
+      {confirmed && (
+        <p className="text-sm">
+          Show this reference at the restaurant counter to collect your food.
+          {payment === "counter" && " Pay at the counter when you pick up."}
+        </p>
+      )}
+      {payment === "checking" && (
+        <p className="text-sm">This usually takes a few seconds. You can keep this page open.</p>
+      )}
+      {(payment === "slow" || payment === "unknown") && (
+        <p className="text-sm">
+          We haven&apos;t had confirmation from the payment provider yet. Once it arrives, your receipt is sent to
+          WhatsApp and the kitchen starts on your order. If you were charged and get no receipt, message us with your
+          order reference.
+        </p>
+      )}
+      {payment === "failed" && (
+        <div className="space-y-3">
+          <p className="text-sm">
+            This order wasn&apos;t paid, so the kitchen won&apos;t prepare it. Your items are saved – try paying again.
+            If you were charged, message us with your order reference.
+          </p>
+          <Button variant="ticket" size="lg" className="w-full" onClick={() => cart.retryLastOrder()}>
+            Try again
+          </Button>
+        </div>
+      )}
       <ul className="divide-y divide-border rounded-2xl border border-border text-sm">
         {order.lines.map((line) => (
           <li key={line.menuItemId} className="flex justify-between gap-3 p-3">
@@ -127,9 +214,10 @@ export function FoodOrderSheet({ extraOpenDates }: { extraOpenDates?: string[] }
   const { lines, lastOrder } = useCart();
   const { user, isLoading: sessionLoading } = useSession();
   const resetSession = useResetSession();
-  // Back from logging in or signing up (`?order=resume`): reopen the order.
-  const resume = useSearchParams().get("order") === "resume";
-  const [open, setOpen] = useState(resume);
+  // Back from logging in or signing up (`?order=resume`), or from the payment
+  // page (`?order=placed`): reopen the order.
+  const orderParam = useSearchParams().get("order");
+  const [open, setOpen] = useState(orderParam === "resume" || orderParam === "placed");
   const [sending, setSending] = useState(false);
   const [phoneError, setPhoneError] = useState<string>();
   const [whatsappFallback, setWhatsappFallback] = useState<string | null>(null);
