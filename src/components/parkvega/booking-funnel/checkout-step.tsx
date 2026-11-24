@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/form";
 import type { GuestDetails, TicketSelection } from "./types";
 import { itemsCount, itemsValue, ticketItems, track } from "@/lib/analytics/events";
-import { bookingTracking, type BookingTracking } from "@/lib/analytics/tracking-context";
 
 /** Fallback shown when the REST API returns no usable error message (Req 6.6). */
 const GENERIC_ERROR_MESSAGE = "Something went wrong. Please try again.";
@@ -60,10 +59,7 @@ interface CreateBookingPayload {
     ticket_product_id: string;
     adults: number;
     children: number;
-    infants: number;
   }>;
-  /** Analytics context (consent, GA ids); no personal details. */
-  tracking?: BookingTracking;
 }
 
 /** Response from POST /api/payments/initiate. */
@@ -139,10 +135,10 @@ export function CheckoutStep({
         items: selections.map((sel) => ({
           ticket_product_id: sel.productId,
           adults: sel.adultQty,
-          children: sel.childQty,
-          infants: sel.infantQty,
+          // Toddlers (free, under 90 cm) are grouped with children for the
+          // backend — the backend doesn't have an infants field yet.
+          children: sel.childQty + sel.infantQty,
         })),
-        tracking: bookingTracking(),
       };
 
       let booking: Booking;

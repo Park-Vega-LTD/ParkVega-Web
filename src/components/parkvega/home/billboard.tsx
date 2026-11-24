@@ -28,7 +28,7 @@ export function Billboard({
   // else the settings hero image (or just the video / dark panel). Later slides
   // appear only when staff have chosen a photo for them.
   const copy: Omit<HeroSlide, "image" | "alt">[] = [
-    { eyebrow: "Park Vega Waterpark · Agbor", headline: "Delivering your kind of fun" },
+    { eyebrow: "Park Vega Waterpark · Agbor", headline: "Your kind of fun" },
     { eyebrow: "Thrill slides", headline: "Twist, drop and splash" },
     { eyebrow: "Wave pool", headline: "Ride the waves together" },
     { eyebrow: "Relax & float", headline: "Float the afternoon away" },
