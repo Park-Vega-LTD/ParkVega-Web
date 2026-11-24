@@ -39,12 +39,12 @@ const PHOTOS = "https://res.cloudinary.com/rlenhslv/image/upload";
  */
 export const DEFAULT_SERVICE_PHOTOS: Photo[] = [
   {
-    src: `${PHOTOS}/v1794921963/parkvega/site/photos/services/cabanas.jpg`,
-    alt: "Row of private cabanas beside the splash pad at Park Vega",
-  },
-  {
     src: `${PHOTOS}/v1794921966/parkvega/site/photos/services/restaurant-wings.jpg`,
     alt: "Glazed chicken wings with coleslaw from the Park Vega Restaurant",
+  },
+  {
+    src: `${PHOTOS}/v1794921963/parkvega/site/photos/services/cabanas.jpg`,
+    alt: "Row of private cabanas beside the splash pad at Park Vega",
   },
   {
     src: `${PHOTOS}/v1794921964/parkvega/site/photos/services/life-jackets.webp`,

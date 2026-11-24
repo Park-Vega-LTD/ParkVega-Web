@@ -64,7 +64,7 @@ export const ADD_ONS = [
   {
     name: "Group pass (20+)",
     text: "Special pricing for schools, churches, corporates and groups above 20.",
-    href: "/school-excursions",
+    href: "/tickets#groups",
     cta: "Group pricing",
   },
 ];
@@ -114,6 +114,46 @@ export const BIRTHDAY_PACKAGES: Package[] = [
       "Cabanas and seating planned for your group",
       "Food & drink packages for the party",
       "Dedicated contact on WhatsApp",
+    ],
+  },
+];
+
+/**
+ * Group admission packages shown on the tickets page.
+ * Prices are confirmed by the Park Vega team (20+ guests).
+ */
+export const GROUP_PACKAGES: Package[] = [
+  {
+    name: "Standard Group",
+    tagline: "20 – 49 guests",
+    priceNote: "per person",
+    includes: [
+      "Unlimited rides on all attractions",
+      "Dedicated WhatsApp contact for your group",
+      "Flexible arrival – no fixed time slot",
+    ],
+  },
+  {
+    name: "Large Group",
+    tagline: "50 – 99 guests",
+    priceNote: "per person",
+    highlight: true,
+    includes: [
+      "Discounted per-person rate",
+      "Reserved seating area for your group",
+      "Unlimited rides on all attractions",
+      "Dedicated WhatsApp contact",
+    ],
+  },
+  {
+    name: "Corporate / Event",
+    tagline: "100 + guests",
+    priceNote: "custom quote",
+    includes: [
+      "Best available group rate",
+      "Exclusive areas or full-park buyout option",
+      "Cabanas, food packages and signage",
+      "Dedicated event coordinator",
     ],
   },
 ];

@@ -31,38 +31,6 @@ export type ServiceCategory = {
 
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
   {
-    id: "comfort",
-    label: "Comfort",
-    eyebrow: "Comfort & convenience",
-    title: "Settle in and stay all day.",
-    description: "The facilities that make a full day by the water easy for every age.",
-    tone: "ocean",
-    items: [
-      {
-        title: "Private cabanas",
-        text: "Shaded, private and yours all day. Seats up to 12 with a TV, phone charging and a fan.",
-        href: "#cabanas",
-        cta: "See cabanas",
-      },
-      {
-        title: "Changing rooms & showers",
-        text: "Change into swimwear and rinse off before and after you swim.",
-      },
-      {
-        // confirm
-        title: "Lockers",
-        text: "Keep phones, keys and valuables safe while you ride. Ask at the gate on arrival.",
-      },
-      {
-        // confirm
-        title: "On-site parking",
-        text: "Drive in off Ewuru Road and park close to the entrance.",
-        href: "/directions-from-benin-asaba-warri-onitsha",
-        cta: "Get directions",
-      },
-    ],
-  },
-  {
     id: "dining",
     label: "Food & drink",
     eyebrow: "Food & drink",
@@ -93,6 +61,38 @@ export const SERVICE_CATEGORIES: ServiceCategory[] = [
         text: "Pre-ordered meals ready on arrival for parties, schools and teams.",
         href: "whatsapp:Hi Park Vega! I'd like a meal package for my group.",
         cta: "Ask for a menu",
+      },
+    ],
+  },
+  {
+    id: "comfort",
+    label: "Comfort",
+    eyebrow: "Comfort & convenience",
+    title: "Settle in and stay all day.",
+    description: "The facilities that make a full day by the water easy for every age.",
+    tone: "ocean",
+    items: [
+      {
+        title: "Private cabanas",
+        text: "Shaded, private and yours all day. Seats up to 12 with a TV, phone charging and a fan.",
+        href: "#cabanas",
+        cta: "See cabanas",
+      },
+      {
+        title: "Changing rooms & showers",
+        text: "Change into swimwear and rinse off before and after you swim.",
+      },
+      {
+        // confirm
+        title: "Lockers",
+        text: "Keep phones, keys and valuables safe while you ride. Ask at the gate on arrival.",
+      },
+      {
+        // confirm
+        title: "On-site parking",
+        text: "Drive in off Ewuru Road and park close to the entrance.",
+        href: "/directions-from-benin-asaba-warri-onitsha",
+        cta: "Get directions",
       },
     ],
   },

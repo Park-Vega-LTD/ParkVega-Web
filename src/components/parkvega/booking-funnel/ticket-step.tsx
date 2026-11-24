@@ -42,6 +42,7 @@ interface TicketPrice {
 interface QtyState {
   adultQty: number;
   childQty: number;
+  infantQty: number;
 }
 
 function clampQty(value: number): number {
@@ -58,7 +59,7 @@ function clampQty(value: number): number {
  */
 function useTicketPrice(
   productId: string,
-  category: "ADULT" | "CHILD",
+  category: "ADULT" | "CHILD" | "INFANT",
   date: string,
 ) {
   return useQuery({
@@ -123,9 +124,9 @@ function QtyControl({
 }
 
 /**
- * Renders a single product's quantity selectors, fetching adult/child prices
- * for the selected date. Reports its resolved prices to the parent so the
- * parent can assemble the final selections.
+ * Renders a single product's quantity selectors, fetching adult/child/infant
+ * prices for the selected date. Reports its resolved prices to the parent so
+ * the parent can assemble the final selections.
  */
 function ProductRow({
   product,
@@ -140,21 +141,27 @@ function ProductRow({
   onQtyChange: (next: QtyState) => void;
   onPricesResolved: (
     productId: string,
-    prices: { adultPrice: number; childPrice: number },
+    prices: { adultPrice: number; childPrice: number; infantPrice: number },
   ) => void;
 }) {
   const adultPriceQuery = useTicketPrice(product.id, "ADULT", date);
   const childPriceQuery = useTicketPrice(product.id, "CHILD", date);
+  const infantPriceQuery = useTicketPrice(product.id, "INFANT", date);
 
   const adultPrice = adultPriceQuery.data?.price;
   const childPrice = childPriceQuery.data?.price;
+  const infantPrice = infantPriceQuery.data?.price;
 
   // Report resolved prices up to the parent whenever they change.
   React.useEffect(() => {
-    if (adultPrice !== undefined && childPrice !== undefined) {
-      onPricesResolved(product.id, { adultPrice, childPrice });
+    if (
+      adultPrice !== undefined &&
+      childPrice !== undefined &&
+      infantPrice !== undefined
+    ) {
+      onPricesResolved(product.id, { adultPrice, childPrice, infantPrice });
     }
-  }, [adultPrice, childPrice, product.id, onPricesResolved]);
+  }, [adultPrice, childPrice, infantPrice, product.id, onPricesResolved]);
 
   return (
     <div className="rounded-lg border p-4">
@@ -166,16 +173,22 @@ function ProductRow({
       </div>
       <div className="divide-y">
         <QtyControl
-          label="Adult"
+          label="Standard (Above 150cm)"
           value={qty.adultQty}
           price={adultPrice}
           onChange={(adultQty) => onQtyChange({ ...qty, adultQty })}
         />
         <QtyControl
-          label="Child"
+          label="Junior (90cm – 150cm)"
           value={qty.childQty}
           price={childPrice}
           onChange={(childQty) => onQtyChange({ ...qty, childQty })}
+        />
+        <QtyControl
+          label="Toddler (Under 90cm)"
+          value={qty.infantQty}
+          price={infantPrice}
+          onChange={(infantQty) => onQtyChange({ ...qty, infantQty })}
         />
       </div>
     </div>
@@ -204,6 +217,7 @@ export function TicketStep({
         seed[sel.productId] = {
           adultQty: sel.adultQty,
           childQty: sel.childQty,
+          infantQty: sel.infantQty,
         };
       }
       return seed;
@@ -212,17 +226,21 @@ export function TicketStep({
 
   // Resolved prices reported by each ProductRow, keyed by productId.
   const [prices, setPrices] = React.useState<
-    Record<string, { adultPrice: number; childPrice: number }>
+    Record<string, { adultPrice: number; childPrice: number; infantPrice: number }>
   >({});
 
   const handlePricesResolved = React.useCallback(
-    (productId: string, resolved: { adultPrice: number; childPrice: number }) => {
+    (
+      productId: string,
+      resolved: { adultPrice: number; childPrice: number; infantPrice: number },
+    ) => {
       setPrices((prev) => {
         const existing = prev[productId];
         if (
           existing &&
           existing.adultPrice === resolved.adultPrice &&
-          existing.childPrice === resolved.childPrice
+          existing.childPrice === resolved.childPrice &&
+          existing.infantPrice === resolved.infantPrice
         ) {
           return prev;
         }
@@ -257,7 +275,7 @@ export function TicketStep({
   const totalQty = React.useMemo(
     () =>
       Object.values(quantities).reduce(
-        (sum, q) => sum + q.adultQty + q.childQty,
+        (sum, q) => sum + q.adultQty + q.childQty + q.infantQty,
         0,
       ),
     [quantities],
@@ -271,18 +289,20 @@ export function TicketStep({
 
     const finalSelections: TicketSelection[] = products
       .map((product) => {
-        const qty = quantities[product.id] ?? { adultQty: 0, childQty: 0 };
-        const resolved = prices[product.id] ?? { adultPrice: 0, childPrice: 0 };
+        const qty = quantities[product.id] ?? { adultQty: 0, childQty: 0, infantQty: 0 };
+        const resolved = prices[product.id] ?? { adultPrice: 0, childPrice: 0, infantPrice: 0 };
         return {
           productId: product.id,
           name: product.name,
           adultQty: qty.adultQty,
           childQty: qty.childQty,
+          infantQty: qty.infantQty,
           adultPrice: resolved.adultPrice,
           childPrice: resolved.childPrice,
+          infantPrice: resolved.infantPrice,
         };
       })
-      .filter((sel) => sel.adultQty + sel.childQty > 0);
+      .filter((sel) => sel.adultQty + sel.childQty + sel.infantQty > 0);
 
     onNext(finalSelections);
   }
@@ -326,7 +346,7 @@ export function TicketStep({
                 key={product.id}
                 product={product}
                 date={visitDate}
-                qty={quantities[product.id] ?? { adultQty: 0, childQty: 0 }}
+                qty={quantities[product.id] ?? { adultQty: 0, childQty: 0, infantQty: 0 }}
                 onQtyChange={(next) =>
                   setQuantities((prev) => ({ ...prev, [product.id]: next }))
                 }

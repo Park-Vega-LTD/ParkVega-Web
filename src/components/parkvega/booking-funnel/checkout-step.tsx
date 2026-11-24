@@ -60,6 +60,7 @@ interface CreateBookingPayload {
     ticket_product_id: string;
     adults: number;
     children: number;
+    infants: number;
   }>;
   /** Analytics context (consent, GA ids); no personal details. */
   tracking?: BookingTracking;
@@ -82,7 +83,11 @@ interface CheckoutStepProps {
 
 /** Compute the subtotal for a single selection line. */
 function lineTotal(sel: TicketSelection): number {
-  return sel.adultQty * sel.adultPrice + sel.childQty * sel.childPrice;
+  return (
+    sel.adultQty * sel.adultPrice +
+    sel.childQty * sel.childPrice +
+    sel.infantQty * sel.infantPrice
+  );
 }
 
 export function CheckoutStep({
@@ -135,6 +140,7 @@ export function CheckoutStep({
           ticket_product_id: sel.productId,
           adults: sel.adultQty,
           children: sel.childQty,
+          infants: sel.infantQty,
         })),
         tracking: bookingTracking(),
       };
@@ -230,7 +236,7 @@ export function CheckoutStep({
                   {sel.adultQty > 0 ? (
                     <div className="flex justify-between text-muted-foreground">
                       <span>
-                        Adult × {sel.adultQty} ({formatNaira(sel.adultPrice)} each)
+                        Standard × {sel.adultQty} ({formatNaira(sel.adultPrice)} each)
                       </span>
                       <span>{formatNaira(sel.adultQty * sel.adultPrice)}</span>
                     </div>
@@ -238,9 +244,15 @@ export function CheckoutStep({
                   {sel.childQty > 0 ? (
                     <div className="flex justify-between text-muted-foreground">
                       <span>
-                        Child × {sel.childQty} ({formatNaira(sel.childPrice)} each)
+                        Junior × {sel.childQty} ({formatNaira(sel.childPrice)} each)
                       </span>
                       <span>{formatNaira(sel.childQty * sel.childPrice)}</span>
+                    </div>
+                  ) : null}
+                  {sel.infantQty > 0 ? (
+                    <div className="flex justify-between text-muted-foreground">
+                      <span>Toddler × {sel.infantQty} (Free)</span>
+                      <span>{formatNaira(0)}</span>
                     </div>
                   ) : null}
                 </div>

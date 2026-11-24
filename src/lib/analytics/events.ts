@@ -128,8 +128,10 @@ export function ticketItems(
     name: string;
     adultQty: number;
     childQty: number;
+    infantQty: number;
     adultPrice: number;
     childPrice: number;
+    infantPrice: number;
   }>,
 ): AnalyticsItem[] {
   return selections.flatMap((sel) => {
@@ -139,7 +141,7 @@ export function ticketItems(
         item_id: sel.productId,
         item_name: sel.name,
         item_category: "Ticket",
-        item_variant: "adult",
+        item_variant: "standard",
         price: sel.adultPrice,
         quantity: sel.adultQty,
       });
@@ -149,9 +151,19 @@ export function ticketItems(
         item_id: sel.productId,
         item_name: sel.name,
         item_category: "Ticket",
-        item_variant: "child",
+        item_variant: "junior",
         price: sel.childPrice,
         quantity: sel.childQty,
+      });
+    }
+    if (sel.infantQty > 0) {
+      lines.push({
+        item_id: sel.productId,
+        item_name: sel.name,
+        item_category: "Ticket",
+        item_variant: "toddler",
+        price: sel.infantPrice,
+        quantity: sel.infantQty,
       });
     }
     return lines;

@@ -9,10 +9,15 @@ export type FunnelStep = 1 | 2 | 3;
 export interface TicketSelection {
   productId: string;
   name: string;
+  /** Standard ticket (above 150 cm) quantity. */
   adultQty: number;
+  /** Junior ticket (90 cm – 150 cm) quantity. */
   childQty: number;
+  /** Toddler ticket (under 90 cm) quantity — always free. */
+  infantQty: number;
   adultPrice: number;
   childPrice: number;
+  infantPrice: number;
 }
 
 /** Guest contact details captured on the checkout step. */

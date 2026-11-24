@@ -41,9 +41,9 @@ import type { Booking, Ticket } from "@/types/api";
 const SESSION_EXPIRED_MESSAGE = "Session expired. Please log in again.";
 
 const CATEGORY_LABELS: Record<Ticket["visitor_category"], string> = {
-  ADULT: "Adult",
-  CHILD: "Child",
-  INFANT: "Infant",
+  ADULT: "Standard",
+  CHILD: "Junior",
+  INFANT: "Toddler",
 };
 
 const ENTRY_STEPS = [
